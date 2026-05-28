@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2 family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -29,7 +29,6 @@
             overflow: hidden;
         }
 
-        /* TELA DE RETORNO CASO NÃO LOGADO */
         #bloqueio-chat {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: white; z-index: 99999; display: flex;
@@ -37,7 +36,6 @@
             padding: 20px; text-align: center; display: none;
         }
 
-        /* HEADER DO CHAT */
         .chat-header {
             background-color: white;
             padding: 15px;
@@ -57,7 +55,6 @@
         .chat-perfil h3 { font-size: 1rem; color: var(--primary); }
         .chat-perfil p { font-size: 0.7rem; color: #a68580; }
 
-        /* ÁREA DAS MENSAGENS */
         .mensagens-container {
             flex: 1;
             padding: 15px;
@@ -73,10 +70,9 @@
             display: flex;
             flex-direction: column;
             max-width: 75%;
-            animation: subirá 0.2s ease;
+            animation: subirMsg 0.2s ease;
         }
 
-        /* Direcionamento (Estilo WhatsApp) */
         .msg-meu { align-self: flex-end; }
         .msg-outro { align-self: flex-start; }
 
@@ -101,7 +97,6 @@
             border-top-left-radius: 4px;
         }
 
-        /* FUNÇÃO CITAR/RESPONDER MENSAGEM */
         .citacao-container {
             background: rgba(0, 0, 0, 0.05);
             border-left: 3px solid var(--primary);
@@ -129,7 +124,6 @@
 
         .balao-mensagem:hover .btn-responder-msg { opacity: 1; }
 
-        /* BARRA DE INPUT FIXA INFERIOR */
         .painel-resposta-fixo {
             background: #e6ded7; padding: 6px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -159,7 +153,7 @@
             cursor: pointer; font-size: 1.1rem; box-shadow: 0 3px 10px rgba(140,98,93,0.2);
         }
 
-        @keyframes subirá { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes subirMsg { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -179,11 +173,8 @@
         <div style="width: 50px;"></div>
     </div>
 
-    <div class="mensagens-container" id="box-lista-mensagens">
-        <!-- Mensagens entrarão aqui dinamicamente -->
-    </div>
+    <div class="mensagens-container" id="box-lista-mensagens"></div>
 
-    <!-- Interface Visual para quando estiver respondendo alguém -->
     <div class="painel-resposta-fixo" id="painel-resposta">
         <div id="texto-painel-resposta">Respondendo...</div>
         <span style="cursor: pointer; font-weight: bold;" onclick="cancelarResposta()">✕</span>
@@ -262,7 +253,6 @@
             if (e.key === 'Enter') { e.preventDefault(); window.enviarMensagemChat(); }
         };
 
-        // Escuta em tempo real limitando às últimas 100 mensagens para manter leve
         const qChat = query(collection(db, "chat_privado"), orderBy("criadoEm", "asc"), limit(100));
         onSnapshot(qChat, (snapshot) => {
             const container = document.getElementById('box-lista-mensagens');
@@ -293,7 +283,6 @@
                 `;
                 container.appendChild(blocoMsg);
             });
-            // Auto rolagem para a última mensagem recebida
             container.scrollTop = container.scrollHeight;
         });
     </script>
