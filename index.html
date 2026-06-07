@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buraco Negro - Galaxy Love</title>
+    <title>Galáxia do Amor - Interativa</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
@@ -11,19 +11,18 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #020005;
+            background-color: #000;
             font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
+        /* Canvas onde o motor gráfico renderiza o coração e as estrelas */
         canvas {
             position: absolute;
             top: 0;
@@ -31,45 +30,52 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
         }
 
-        /* Container que segura os textos orbitando em HTML/CSS para manter a nitidez do vídeo */
-        #orbit-labels-container {
+        /* Container HTML 3D para as palavras de amor flutuantes */
+        #labels-container {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none;
+            pointer-events: none; /* Deixa o toque passar para o canvas conseguir girar */
         }
 
-        .orbit-text {
+        .love-word {
             position: absolute;
             color: #ffffff;
             font-weight: 900;
             font-size: 1.1rem;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             white-space: nowrap;
-            text-shadow: 0 0 10px #ff2a74, 0 0 20px #ff2a74, 0 0 30px #000;
+            text-shadow: 0 0 8px #ff2a74, 0 0 20px #ff2a74, 0 0 30px #000;
             transform: translate(-50%, -50%);
             will-change: transform, opacity;
-            opacity: 0.85;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* CSS Exato e Idêntico ao do Vídeo */
+        /* Configurações estruturais idênticas à folha de estilos do vídeo original */
         :root {
             --letter-love: 420px;
-            --letter: rgba(14, 2, 7, 0.88);
+            --letter: rgba(14, 2, 7, 0.9);
         }
 
         .Para_Ti {
             position: absolute;
             width: 90%;
-            max-width: 390px;
+            max-width: 380px;
             height: var(--letter-love);
             background: var(--letter);
             border-radius: 20px;
             border: 2px solid #ff2a74;
-            box-shadow: 0 0 30px rgba(255, 42, 116, 0.6);
+            box-shadow: 0 0 35px rgba(255, 42, 116, 0.6);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -81,9 +87,9 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .screen {
@@ -100,15 +106,15 @@
         }
 
         .Para_Ti h1 {
-            font-size: 2.6rem;
+            font-size: 2.4rem;
             font-weight: bold;
-            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
 
-        .sticker-box {
+        .box-sticker {
             width: 130px;
             height: 130px;
             margin: 15px 0;
@@ -117,7 +123,7 @@
             justify-content: center;
         }
 
-        .sticker {
+        .sticker-svg {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -131,307 +137,367 @@
             font-weight: bold;
         }
 
-        .poem {
+        .poem-box {
             font-size: 1rem;
             line-height: 1.6;
-            color: #ffe1ed;
+            color: #ffe2ee;
             margin: 15px 0;
         }
 
-        .btn-iniciar {
+        .btn-action {
             background: #ff2a74;
             border: none;
             color: white;
-            padding: 12px 40px;
-            font-size: 0.9rem;
+            padding: 12px 45px;
+            font-size: 0.95rem;
             font-weight: bold;
             letter-spacing: 2px;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 0 15px #ff2a74;
-            transition: 0.3s;
+            transition: 0.3s ease;
         }
 
-        .btn-iniciar:hover {
+        .btn-action:hover {
             background: #ff7eb3;
             box-shadow: 0 0 25px #ff7eb3;
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
-        .btn-heart {
+        .btn-heart-pulse {
             background: none;
             border: none;
-            font-size: 2.5rem;
+            font-size: 2.4rem;
             cursor: pointer;
             color: #ff2a74;
-            animation: pulse 1.5s infinite;
+            animation: pulseAnimation 1.4s infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulseAnimation {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff2a74); }
-            50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #ff2a74); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 12px #ff2a74); }
             100% { transform: scale(1); filter: drop-shadow(0 0 2px #ff2a74); }
         }
 
-        .fade-out {
+        /* Classe disparada quando o usuário entra na galáxia para ocultar a interface */
+        .card-hidden {
             opacity: 0.0;
             transform: translate(-50%, -50%) scale(0.85);
             pointer-events: none;
+        }
+
+        /* Dica de toque no início da interação */
+        #drag-tip {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="singularity-canvas"></canvas>
-    <div id="orbit-labels-container"></div>
+    <canvas id="galaxy-canvas"></canvas>
+    <div id="labels-container"></div>
+    <div id="drag-tip">Arraste para girar a galáxia e revelar as palavras 🌟</div>
 
     <div class="Para_Ti" id="main-card">
-        <div class="screen active" id="s1">
+        <div class="screen active" id="scr-intro">
             <h1>Galaxy Love</h1>
-            <div class="sticker-box">
-                <svg viewBox="0 0 100 100" class="sticker">
+            <div class="box-sticker">
+                <svg viewBox="0 0 100 100" class="sticker-svg">
                     <path d="M35,45 C30,30 45,30 45,45 C45,30 60,30 55,45 C52,60 35,70 35,70 C35,70 18,60 15,45 C12,30 27,30 27,45" fill="#fff"/>
                     <path d="M65,50 C61,37 73,37 73,50 C73,37 85,37 81,50 C78,62 65,70 65,70 C65,70 52,62 49,50 C46,37 58,37 58,50" fill="#ff7eb3"/>
                 </svg>
             </div>
-            <p class="subtitle">LOVE</p>
-            <button class="btn-iniciar" onclick="changeScreen(1)">INICIAR</button>
+            <p class="subtitle">Amor Eterno</p>
+            <button class="btn-action" onclick="navigate(1)">INICIAR</button>
         </div>
 
-        <div class="screen" id="s2">
-            <h1>Amor de Minha Vida</h1>
-            <div class="sticker-box">
-                <svg viewBox="0 0 100 100" class="sticker">
-                    <circle cx="35" cy="50" r="20" fill="#e60000"/>
-                    <path d="M25,45 L35,53 L45,45 M25,55 L35,47 L45,55" stroke="#fff" stroke-width="2"/>
-                    <circle cx="65" cy="50" r="20" fill="#fff" stroke="#ffb3d1"/>
-                    <ellipse cx="65" cy="52" rx="3" ry="2" fill="#ff9900"/>
-                    <path d="M70,36 L78,40 L74,45" fill="#ff0066"/>
+        <div class="screen" id="scr-msg1">
+            <h1>Amor da Minha Vida</h1>
+            <div class="box-sticker">
+                <svg viewBox="0 0 100 100" class="sticker-svg">
+                    <circle cx="33" cy="50" r="22" fill="#e60000"/>
+                    <path d="M22,42 Q33,32 44,42 M22,50 Q33,62 44,50" stroke="#fff" stroke-width="2.5" fill="none"/>
+                    <path d="M25,44 L30,48 M41,44 L36,48" stroke="#000" stroke-width="3"/>
+                    <circle cx="66" cy="50" r="22" fill="#fff" stroke="#ffb3d1" stroke-width="2"/>
+                    <path d="M58,46 Q61,48 62,46 M74,46 Q71,48 70,46" stroke="#000" stroke-width="3" fill="none"/>
+                    <ellipse cx="66" cy="52" rx="3" ry="2" fill="#ff9900"/>
                 </svg>
             </div>
-            <p class="poem">"Quanto mais tempo estamos juntos, mais te amo. Minha realidade paralela favorita é você."</p>
-            <button class="btn-heart" onclick="changeScreen(2)">❤️</button>
+            <p class="poem-box">"Quanto mais o tempo passa, mais eu tenho certeza de que você é a minha galáxia inteira."</p>
+            <button class="btn-heart-pulse" onclick="navigate(2)">❤️</button>
         </div>
 
-        <div class="screen" id="s3">
+        <div class="screen" id="scr-msg2">
             <h1>Você Me Encanta</h1>
-            <div class="sticker-box">
-                <svg viewBox="0 0 100 100" class="sticker">
-                    <path d="M15,50 C15,25 85,25 85,50 C85,75 15,75 15,50 Z" fill="#ff7eb3"/>
-                    <circle cx="38" cy="48" r="4" fill="#000"/><circle cx="62" cy="48" r="4" fill="#000"/>
-                    <path d="M45,60 Q50,65 55,60" stroke="#000" stroke-width="3" fill="none"/>
+            <div class="box-sticker">
+                <svg viewBox="0 0 100 100" class="sticker-svg">
+                    <path d="M12,50 C12,20 88,20 88,50 C88,80 12,80 12,50 Z" fill="#ff7eb3"/>
+                    <circle cx="35" cy="48" r="5" fill="#000"/><circle cx="65" cy="48" r="5" fill="#000"/>
+                    <path d="M42,62 Q50,68 58,62" stroke="#000" stroke-width="3.5" fill="none"/>
                 </svg>
             </div>
-            <p class="poem">"Se eu pudesse escolher um lugar seguro para passar a eternidade... seria ao seu lado."</p>
-            <button class="btn-heart" onclick="changeScreen(0)">❤️</button>
+            <p class="poem-box">"Se eu pudesse escolher qualquer lugar do mundo para ser o meu porto seguro... seria exatamente aí, do seu lado."</p>
+            <button class="btn-heart-pulse" onclick="navigate(0)">❤️</button>
         </div>
     </div>
 
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        uniform vec2 u_resolution;
-        uniform float u_time;
-        uniform float u_boost;
-
-        // Função matemática para criar a distorção do formato do coração
-        float heartShape(vec2 p) {
-            p.x *= 1.2;
-            p.y -= 0.25;
-            float a = atan(p.x, p.y) / 3.14159265;
-            float r = length(p);
-            // Fórmula do formato clássico do coração cardioide
-            float h = abs(a);
-            float d = (13.0*h - 5.0*cos(2.0*h*3.1415) - 2.0*cos(3.0*h*3.1415) - cos(4.0*h*3.1415))/16.0;
-            return r - d * 0.55;
-        }
-
-        // Pseudo-random noise para simular a poeira e nuvens cósmicas incandescendo
-        float noise(in vec2 p) {
-            return frac(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-        }
-
-        float fbm(in vec2 p) {
-            float v = 0.0;
-            float amp = 0.5;
-            for (int i = 0; i < 4; i++) {
-                v += amp * sin(p.x * 2.0 + u_time * 2.0);
-                p *= 2.1;
-                amp *= 0.5;
-            }
-            return v;
-        }
-
-        void main() {
-            vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.x, u_resolution.y);
-            
-            // Distorção Espiral (Simulando a rotação de um Buraco Negro de Kerr)
-            float r = length(uv);
-            float theta = atan(uv.y, uv.x);
-            
-            // Quanto mais perto do horizonte de eventos, maior a torção gravitacional (redshift/lensing)
-            float distortion = 0.8 / (r + 0.08);
-            theta += elapsedTime * 1.5 + distortion;
-            
-            // Reconstrói as coordenadas mapeadas na distorção extrema da singularidade
-            vec2 rotatedUv = vec2(cos(theta), sin(theta)) * r;
-
-            // Define a distância até a borda do coração negro
-            float distToHeart = heartShape(rotatedUv);
-
-            // Cores base do vídeo (Preto profundo, Rosa choque neon, Vermelho escuro e Brilho esbranquiçado)
-            vec3 blackHole = vec3(0.0, 0.0, 0.0);
-            vec3 accretionGlow = vec3(1.0, 0.16, 0.45); // #ff2a74
-            vec3 cosmicDust = vec3(0.4, 0.0, 0.15);
-
-            vec3 finalColor = vec3(0.0);
-
-            if (distToHeart < 0.0) {
-                // Dentro do Horizonte de Eventos (Singularidade absoluta em formato de coração)
-                finalColor = blackHole;
-            } else {
-                // Disco de Acreção e distorção de lentes ao redor do coração
-                float glowIntensity = exp(-distToHeart * 6.5); // Queda exponencial de luz
-                float ringPattern = sin(1.0 / distToHeart * 8.0 - u_time * 12.0);
-                
-                // Adiciona turbulência de plasma cósmico
-                float plasma = fbm(rotatedUv * 4.0 + ringPattern * 0.2);
-                
-                finalColor = accretionGlow * (glowIntensity * 1.8) * (1.0 + plasma * 0.4);
-                finalColor += cosmicDust * exp(-distToHeart * 1.5);
-                
-                // Estrelas ao fundo que sofrem refração gravitacional nas bordas
-                float stars = step(0.996, sin(uv.x * 150.0) * cos(uv.y * 150.0 + u_time * 0.05));
-                finalColor += vec3(stars) * step(0.6, distToHeart) * 0.4;
-            }
-
-            // Correção de gamma e brilho
-            gl_FragColor = vec4(pow(finalColor, vec3(0.85)), 1.0);
-        }
-    </script>
-
     <script>
-        // --- GERENCIADOR DE TELAS INTERATIVAS ---
-        const card = document.getElementById('main-card');
-        const screens = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3')];
-        let boostShader = 0.0;
+        // --- GERENCIAMENTO DE TRANSIÇÕES ---
+        const mainCard = document.getElementById('main-card');
+        const listScreens = [document.getElementById('scr-intro'), document.getElementById('scr-msg1'), document.getElementById('scr-msg2')];
+        const dragTip = document.getElementById('drag-tip');
+        let showWords = false;
 
-        function changeScreen(index) {
-            card.classList.add('fade-out');
-            boostShader = 1.0; // Intensifica temporariamente o brilho do buraco negro quando clica
+        function navigate(index) {
+            mainCard.classList.add('card-hidden');
+            showWords = true; // Permite a exibição das palavras ao redor do coração
+            dragTip.style.opacity = "1";
 
             setTimeout(() => {
-                screens.forEach(s => s.classList.remove('active'));
-                screens[index].classList.add('active');
-                boostShader = 0.0;
+                listScreens.forEach(s => s.classList.remove('active'));
+                listScreens[index].classList.add('active');
             }, 800);
 
-            // Deixa o buraco negro exposto flutuando por um tempo igual ao vídeo
+            // Mantém a galáxia limpa por 4 segundos para o usuário poder arrastar e interagir
             setTimeout(() => {
-                card.classList.remove('fade-out');
-            }, 3500);
+                mainCard.classList.remove('card-hidden');
+                dragTip.style.opacity = "0";
+            }, 4500);
         }
 
-        // --- SISTEMA GRÁFICO SHADER 3D + LABELS ORBITAIS ---
-        const canvas = document.getElementById('singularity-canvas');
-        const labelsContainer = document.getElementById('orbit-labels-container');
+        // --- SISTEMA 3D INTERATIVO (THREE.JS) ---
+        const canvas = document.getElementById('galaxy-canvas');
+        const labelsContainer = document.getElementById('labels-container');
 
         const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 45;
+
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-        
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Uniforms para conversar com a GPU via fragment shader
-        const uniforms = {
-            u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-            u_time: { value: 0 },
-            u_boost: { value: 0 }
-        };
+        // Criação do Grupo que vai segurar o coração e as palavras (para girar tudo junto no toque)
+        const interactionGroup = new THREE.Group();
+        scene.add(interactionGroup);
 
-        const geometry = new THREE.PlaneGeometry(2, 2);
-        const material = new THREE.ShaderMaterial({
-            vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
-            fragmentShader: document.getElementById('fragmentShader').textContent,
-            uniforms: uniforms
+        // FORMULAÇÃO MATEMÁTICA DO CORAÇÃO EM PARTÍCULAS
+        const totalParticles = 6000;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positionBuffer = new Float32Array(totalParticles * 3);
+        const colorBuffer = new Float32Array(totalParticles * 3);
+
+        const particlePhases = [];
+        const particleSpeeds = [];
+        const particleScales = [];
+
+        const colorPalette = [
+            new THREE.Color('#ff1493'), // Rosa Neon
+            new THREE.Color('#ff2a74'), // Rosa Original do vídeo
+            new THREE.Color('#ff7eb3'), // Rosa Claro
+            new THREE.Color('#ffffff')  // Brilho estelar
+        ];
+
+        for (let i = 0; i < totalParticles; i++) {
+            const radAngle = Math.random() * Math.PI * 2;
+            particlePhases.push(radAngle);
+            particleSpeeds.push(0.3 + Math.random() * 1.2);
+            
+            const distFactor = 0.2 + Math.random() * 1.4;
+            particleScales.push(distFactor);
+
+            // Aplicação tridimensional da equação do coração
+            const t = radAngle;
+            const x = 16 * Math.pow(Math.sin(t), 3) * distFactor;
+            const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * distFactor;
+            const z = (Math.random() - 0.5) * 6; // Espessura tridimensional do contorno
+
+            positionBuffer[i * 3] = x;
+            positionBuffer[i * 3 + 1] = y;
+            positionBuffer[i * 3 + 2] = z;
+
+            const selectedColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            colorBuffer[i * 3] = selectedColor.r;
+            colorBuffer[i * 3 + 1] = selectedColor.g;
+            colorBuffer[i * 3 + 2] = selectedColor.b;
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positionBuffer, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colorBuffer, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.38,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
         });
 
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
+        const galaxyPoints = new THREE.Points(particleGeometry, particleMaterial);
+        interactionGroup.add(galaxyPoints);
 
-        // --- PALAVRAS EM PORTUGUÊS TRAVADAS NA ÓRBITA DO CORAÇÃO ---
-        const textos = [
-            "INFINITO ∞", "TE AMO ❤️", "AMOR ETERNO", "AMOR DA MINHA VIDA",
-            "INFINITO ∞", "TE AMO ❤️", "AMOR ETERNO", "MEU TUDO ✨"
+        // --- SISTEMA DE PALAVRAS DE AMOR EM ÓRBITA VERDADEIRA 3D ---
+        const palavrasMundo = [
+            "TE AMO ❤️", "MINHA VIDA 💖", "INFINITO ∞", "UNIVERSO 🌌",
+            "PRA SEMPRE 🔐", "DONA DE MIM 👑", "MEU PORTO SEGURO ⚓", "TE AMO ❤️",
+            "LINDA ✨", "MINHA REALIDADE 💫", "MEU MUNDO 🌍", "AMOR ETERNO 🌹"
         ];
-        
-        const labelsData = [];
-        textos.forEach((txt, i) => {
-            const div = document.createElement('div');
-            div.className = 'orbit-text';
-            div.innerText = txt;
-            labelsContainer.appendChild(div);
 
-            labelsData.push({
-                element: div,
-                angle: (i / textos.length) * Math.PI * 2,
-                baseRadius: 0.38 + (i % 2) * 0.12, // Diferentes distâncias para criar camadas como no vídeo
-                speed: 0.5 + (i % 3) * 0.2
+        const wordsData = [];
+        palavrasMundo.forEach((wordText, idx) => {
+            const divElement = document.createElement('div');
+            divElement.className = 'love-word';
+            divElement.innerText = wordText;
+            labelsContainer.appendChild(divElement);
+
+            // Cria um ponto invisível no espaço 3D atrelado ao grupo orbital
+            const dummyObject = new THREE.Object3D();
+            
+            // Posiciona os marcadores ao redor do raio do contorno do coração
+            const angularAllocation = (idx / palavrasMundo.length) * Math.PI * 2;
+            const radiusSpread = 16 + Math.random() * 8; // Afastado do centro para ficar em volta
+
+            dummyObject.position.x = Math.cos(angularAllocation) * radiusSpread;
+            dummyObject.position.y = Math.sin(angularAllocation) * radiusSpread;
+            dummyObject.position.z = (Math.random() - 0.5) * 10;
+
+            interactionGroup.add(dummyObject);
+
+            wordsData.push({
+                element: divElement,
+                threeObject: dummyObject,
+                initialAngle: angularAllocation,
+                radius: radiusSpread,
+                rotationSpeed: 0.2 + (idx % 2) * 0.15
             });
         });
 
+        // --- LÓGICA DE INTERAÇÃO VIA TOQUE / ARRASTE DE DEDO ---
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        
+        // Suporta tanto Desktop (Mouse) quanto Mobile (Toque na tela)
+        const startPan = (clientX, clientY) => {
+            isDragging = true;
+            previousMousePosition = { x: clientX, y: clientY };
+        };
+
+        const movePan = (clientX, clientY) => {
+            if (!isDragging) return;
+
+            const deltaX = clientX - previousMousePosition.x;
+            const deltaY = clientY - previousMousePosition.y;
+
+            // Faz o grupo rotacionar nos eixos X e Y de acordo com o arrastar do dedo
+            interactionGroup.rotation.y += deltaX * 0.008;
+            interactionGroup.rotation.x += deltaY * 0.008;
+
+            previousMousePosition = { x: clientX, y: clientY };
+        };
+
+        const endPan = () => { isDragging = false; };
+
+        // Ouvintes de Eventos para Mouse
+        window.addEventListener('mousedown', (e) => startPan(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => movePan(e.clientX, e.clientY));
+        window.addEventListener('mouseup', endPan);
+
+        // Ouvintes de Eventos para Telas de Toque (Celulares)
+        window.addEventListener('touchstart', (e) => { if(e.touches.length === 1) startPan(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchmove', (e) => { if(e.touches.length === 1) movePan(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchend', endPan);
+
+
+        // --- LOOP DE RENDERIZAÇÃO E PROJEÇÃO MATRIZ 3D ---
         const clock = new THREE.Clock();
+        const vectorProj = new THREE.Vector3();
 
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = clock.getElapsedTime();
-            
-            // Atualiza dados na GPU
-            uniforms.u_time.value = time;
-            uniforms.u_boost.value = THREE.MathUtils.lerp(uniforms.u_boost.value, boostShader, 0.05);
+        function renderFrame() {
+            requestAnimationFrame(renderFrame);
 
-            // Animação e posicionamento das palavras ao redor do formato do coração do buraco negro
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            const minDim = Math.min(w, h);
+            const elapsedTime = clock.getElapsedTime();
+            const posAttr = galaxyPoints.geometry.attributes.position;
 
-            labelsData.forEach(label => {
-                // Calcula a órbita arrastada pela força gravitacional do shader
-                const currentAngle = label.angle - (time * label.speed);
-                
-                // Equação paramétrica do coração aplicada no mapeamento do texto
-                const t = currentAngle;
-                const factor = label.baseRadius;
-                
-                // Ajusta as coordenadas para o espaço cartesiano da tela
-                let x = 16.0 * Math.pow(Math.sin(t), 3.0) * (factor / 16.0);
-                let y = (13.0 * Math.cos(t) - 5.0 * Math.cos(2.0*t) - 2.0 * Math.cos(3.0*t) - Math.cos(4.0*t)) * (factor / 16.0);
-                
-                // Pequeno ajuste vertical para alinhar com o centro real do shader do coração
-                y += 0.06;
+            // Movimentação interna sutil das partículas simulando a dinâmica de fluidos
+            for (let i = 0; i < totalParticles; i++) {
+                particlePhases[i] += 0.003 * particleSpeeds[i];
+                const t = particlePhases[i];
+                const factor = particleScales[i] * (1.0 + 0.07 * Math.sin(elapsedTime * 2 + i));
 
-                // Converte de -1 / 1 para coordenadas de pixels de forma responsiva
-                const screenX = (x * minDim / 2) + (w / 2);
-                const screenY = -(y * minDim / 2) + (h / 2);
+                const x = 16 * Math.pow(Math.sin(t), 3) * factor;
+                const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * factor;
 
-                // Aplica a transformação física nas palavras com rotação tangencial
-                label.element.style.transform = `translate(-50%, -50%) translate(${screenX}px, ${screenY}px) rotate(${-t + Math.PI/2}rad)`;
-                
-                // Se o card principal estiver visível, reduz a opacidade dos textos de fundo para dar foco
-                if (card.classList.contains('fade-out')) {
-                    label.element.style.opacity = "0.9";
+                posAttr.setX(i, x);
+                posAttr.setY(i, y);
+            }
+            posAttr.needsUpdate = true;
+
+            // Rotação automática suave constante quando o usuário NÃO está arrastando o dedo
+            if (!isDragging) {
+                interactionGroup.rotation.y += 0.003;
+            }
+
+            // MAPEAMENTO E ATUALIZAÇÃO DAS PALAVRAS 3D NA TELA HTML
+            const halfW = window.innerWidth / 2;
+            const halfH = window.innerHeight / 2;
+
+            wordsData.forEach(word => {
+                // Rotaciona ligeiramente a posição do marcador ao redor do coração ao longo do tempo
+                word.threeObject.position.x = Math.cos(word.initialAngle + (elapsedTime * word.rotationSpeed)) * word.radius;
+                word.threeObject.position.y = Math.sin(word.initialAngle + (elapsedTime * word.rotationSpeed)) * word.radius;
+
+                // Captura a posição global absoluta atualizada após as rotações de arrastar
+                word.threeObject.getWorldPosition(vectorProj);
+
+                // Projeta as coordenadas tridimensionais no plano da câmera 2D
+                vectorProj.project(camera);
+
+                // Se o marcador estiver atrás da câmera, oculta o texto
+                if (vectorProj.z > 1) {
+                    word.element.style.opacity = 0;
+                    return;
+                }
+
+                // Converte para pixels absolutos baseados no viewport atual
+                const targetPixelX = (vectorProj.x * halfW) + halfW;
+                const targetPixelY = -(vectorProj.y * halfH) + halfH;
+
+                word.element.style.left = `${targetPixelX}px`;
+                word.element.style.top = `${targetPixelY}px`;
+
+                // Efeito visual de profundidade (reduz escala de tamanho para simular distância)
+                const depthScale = (1 - vectorProj.z) * 0.85;
+                word.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.4, depthScale)})`;
+
+                // Controle de visibilidade das palavras com base nas seções ativas
+                if (showWords) {
+                    word.element.style.opacity = mainCard.classList.contains('card-hidden') ? "0.9" : "0.2";
                 } else {
-                    label.element.style.opacity = "0.25";
+                    word.element.style.opacity = "0";
                 }
             });
 
             renderer.render(scene, camera);
         }
 
-        animate();
+        renderFrame();
 
+        // Tratamento adaptativo de redimensionamento da janela
         window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
