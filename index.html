@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Love</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* CSS Base e Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* O Canvas do Three.js fica ao fundo */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Variáveis idênticas às do vídeo */
+        :root {
+            --letter-love: 420px;
+            --letter: rgba(20, 3, 10, 0.85);
+        }
+
+        /* Container Principal do Vídeo (.Para_Ti) */
+        .Para_Ti {
+            position: absolute;
+            width: 90%;
+            max-width: 400px;
+            height: var(--letter-love);
+            background: var(--letter);
+            border-radius: 24px;
+            border: 2px solid #ff2a74;
+            box-shadow: 0 0 30px rgba(255, 42, 116, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 35px 20px;
+            color: #fff;
+            text-align: center;
+            z-index: 10;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(10px);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Telas internas (Início e Mensagens) */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Tipografia e Elementos do Card */
+        .Para_Ti h1 {
+            font-size: 2.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .image-placeholder {
+            width: 130px;
+            height: 130px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ilustração fofa padrão (substituindo o sticker do coelho/aranha) */
+        .love-sticker {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Filtro para dar um brilho neon leve */
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            letter-spacing: 5px;
+            color: #ff5e97;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .poem-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #ffe3ed;
+            margin: 15px 0;
+        }
+
+        /* Botão Iniciar / Avançar */
+        .btn-iniciar {
+            background: #ff2a74;
+            border: none;
+            color: white;
+            padding: 12px 40px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 15px #ff2a74;
+            transition: all 0.3s ease;
+        }
+
+        .btn-iniciar:hover {
+            background: #ff5e97;
+            box-shadow: 0 0 25px #ff7eb3;
+            transform: scale(1.05);
+        }
+
+        /* Animação de pulsar no botão de coração das telas seguintes */
+        .btn-next-heart {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #ff2a74;
+            animation: pulse 1.5s infinite;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+        .btn-next-heart:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff2a74); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 10px #ff2a74); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px #ff2a74); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="galaxy-canvas"></canvas>
+
+    <div class="Para_Ti" id="card-container">
+        
+        <div class="screen active" id="screen-init">
+            <h1>Galaxy Love</h1>
+            <div class="image-placeholder">
+                <svg viewBox="0 0 100 100" class="love-sticker" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M35,40 C30,25 45,25 45,40 C45,25 60,25 55,40 C52,55 35,65 35,65 C35,65 18,55 15,40 C12,25 27,25 27,40" fill="#fff"/>
+                    <path d="M65,45 C61,32 73,32 73,45 C73,32 85,32 81,45 C78,57 65,65 65,65 C65,65 52,57 49,45 C46,32 58,32 58,45" fill="#ff7eb3"/>
+                </svg>
+            </div>
+            <p class="subtitle">LOVE</p>
+            <button class="btn-iniciar" onclick="nextScreen(1)">INICIAR</button>
+        </div>
+
+        <div class="screen" id="screen-msg1">
+            <h1>Amor de mi Vida</h1>
+            <div class="image-placeholder">
+                <svg viewBox="0 0 100 100" class="love-sticker">
+                    <circle cx="50" cy="50" r="40" fill="#ff2a74"/>
+                    <path d="M35,40 L45,50 L35,60 M65,40 L55,50 L65,60" stroke="#fff" stroke-width="4" fill="none"/>
+                    <path d="M40,65 Q50,75 60,65" stroke="#fff" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+            <p class="poem-text">"Cuanto más tiempo estamos juntos, más te amo. Eres mi galaxia entera."</p>
+            <button class="btn-next-heart" onclick="nextScreen(2)">❤️</button>
+        </div>
+
+        <div class="screen" id="screen-msg2">
+            <h1>Me Encantas</h1>
+            <div class="image-placeholder">
+                <svg viewBox="0 0 100 100" class="love-sticker">
+                    <path d="M12,50 C12,15 88,15 88,50 C88,85 12,85 12,50 Z" fill="#ff7eb3"/>
+                    <circle cx="35" cy="45" r="5" fill="#000"/><circle cx="65" cy="45" r="5" fill="#000"/>
+                    <path d="M45,60 Q50,65 55,60" stroke="#000" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+            <p class="poem-text">"Si pudiera elegir un lugar seguro no lo dudaría dos veces, sería a tu lado por siempre."</p>
+            <button class="btn-next-heart" onclick="resetRoutine()">❤️</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. LÓGICA DE TRANSIÇÃO DE TELAS ---
+        const screens = [
+            document.getElementById('screen-init'),
+            document.getElementById('screen-msg1'),
+            document.getElementById('screen-msg2')
+        ];
+        const cardContainer = document.getElementById('card-container');
+
+        function nextScreen(index) {
+            screens.forEach(s => s.classList.remove('active'));
+            screens[index].classList.add('active');
+            
+            // Oculta temporariamente o card para ver o fundo do buraco negro girando
+            if(index === 1) {
+                cardContainer.style.opacity = "0.1";
+                setTimeout(() => {
+                    cardContainer.style.opacity = "1";
+                }, 2500); // 2.5 segundos admirando a galáxia antes do próximo texto
+            }
+        }
+
+        function resetRoutine() {
+            nextScreen(0);
+        }
+
+
+        // --- 2. MOTOR GRÁFICO 3D (THREE.JS) PARA A GALÁXIA ---
+        const canvas = document.getElementById('galaxy-canvas');
+        const scene = new THREE.Scene();
+        
+        // Câmera
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 40;
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Geometria das Partículas (Fórmula Matemática do Coração)
+        const particleCount = 4000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        // Dados customizados para animação orbital
+        const speeds = [];
+        const phases = [];
+        const initialDistances = [];
+
+        const colorPalette = [
+            new THREE.Color('#ff2a74'),
+            new THREE.Color('#ff7eb3'),
+            new THREE.Color('#ff1493'),
+            new THREE.Color('#4a001f')
+        ];
+
+        for (let i = 0; i < particleCount; i++) {
+            // Ângulo orbital
+            const theta = Math.random() * Math.PI * 2;
+            phases.push(theta);
+            speeds.push(0.5 + Math.random() * 1.5);
+            
+            // Multiplicador de escala/espalhamento para simular o buraco negro espiral
+            const factor = 0.4 + Math.random() * 1.2;
+            initialDistances.push(factor);
+
+            // Equação paramétrica do coração (Heart Shape 3D modificado para órbita)
+            // x = 16 * sin^3(t)
+            // y = 13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t)
+            const t = theta;
+            const x = 16 * Math.pow(Math.sin(t), 3) * factor;
+            const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * factor;
+            const z = (Math.random() - 0.5) * 4; // Espessura do disco da galáxia
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            // Cores mescladas com base no centro (efeito buraco negro incandescente)
+            const blendedColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            colors[i * 3] = blendedColor.r;
+            colors[i * 3 + 1] = blendedColor.g;
+            colors[i * 3 + 2] = blendedColor.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // Criação do Material das Partículas (Estilo Estrela)
+        const material = new THREE.PointsMaterial({
+            size: 0.35,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+
+        // --- ADICIONANDO AS PALAVRAS EM ÓRBITA ("TE AMO", "INFINITO", "AMOR ETERNO") ---
+        // Como criar fontes 3D puras deixa o GitHub extremamente pesado, criamos elementos flutuantes simulados
+        const textLabels = ["TE AMO", "INFINITO", "AMOR ETERNO", "AMOR DE MI VIDA", "MY LOVE"];
+        const labelObjects = [];
+
+        // Criando pequenos pontos guias ou organizando a rotação global do sistema de partículas
+        // Para ficar idêntico ao vídeo, fazemos o centro colapsar ligeiramente no meio (Buraco Negro de Coração)
+
+        // Loop de Animação
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+            const positionsAttribute = geometry.attributes.position;
+
+            // Movendo as partículas em espiral em direção ao centro e girando
+            for (let i = 0; i < particleCount; i++) {
+                phases[i] += 0.005 * speeds[i]; // Velocidade de rotação
+                
+                const t = phases[i];
+                const factor = initialDistances[i] * (1.0 + 0.1 * Math.sin(elapsedTime * 2 + i)); // Efeito pulsar silencioso
+
+                // Recalcula formato de coração dinamicamente na rotação
+                const x = 16 * Math.pow(Math.sin(t), 3) * factor;
+                const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * factor;
+
+                positionsAttribute.setX(i, x);
+                positionsAttribute.setY(i, y);
+            }
+            positionsAttribute.needsUpdate = true;
+
+            // Rotação suave do ângulo da câmera para dar profundidade 3D
+            particleSystem.rotation.z = elapsedTime * 0.05;
+            particleSystem.rotation.x = Math.sin(elapsedTime * 0.2) * 0.2;
+            particleSystem.rotation.y = Math.cos(elapsedTime * 0.2) * 0.2;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Ajuste dinâmico de tamanho de tela (Responsividade)
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
