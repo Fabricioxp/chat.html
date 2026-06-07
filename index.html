@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galaxy Love - O que eu admiro em você</title>
+    <title>Minha Galáxia Favorita</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
@@ -18,8 +18,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #020005;
-            font-family: 'Arial', sans-serif;
+            background-color: #030008;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
 
         canvas {
@@ -35,7 +35,6 @@
             cursor: grabbing;
         }
 
-        /* Container HTML para renderizar os textos e mini corações na exata posição 3D */
         #labels-container {
             position: absolute;
             top: 0;
@@ -46,60 +45,51 @@
             pointer-events: none;
         }
 
-        /* Estrutura de cada bloco de admiração (Coração + Texto) */
+        /* Estrutura dos fragmentos (Mini Coração + Elogio) */
         .admiration-node {
             position: absolute;
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Alinha coração ao lado do texto para melhor leitura */
             align-items: center;
             justify-content: center;
             transform: translate(-50%, -50%);
             will-change: transform, opacity;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            gap: 4px;
+            transition: opacity 0.8s ease;
         }
 
-        /* O mini coração rosa brilhante acima do texto */
         .mini-heart {
-            font-size: 1.4rem;
-            color: #ff4081;
-            filter: drop-shadow(0 0 6px #ff2a74) drop-shadow(0 0 12px #ff2a74);
-            animation: floatHeart 2s infinite ease-in-out;
-            margin-bottom: 2px;
+            font-size: 0.9rem;
+            color: #ff2a74;
+            filter: drop-shadow(0 0 4px #ff2a74);
         }
 
-        /* O elogio estilizado idêntico à imagem */
         .admiration-text {
             color: #ffffff;
-            font-weight: 800;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
             text-transform: uppercase;
             white-space: nowrap;
-            text-shadow: 0 0 8px #ff2a74, 0 0 15px rgba(255, 42, 116, 0.6), 0 0 25px #000;
+            text-shadow: 0 0 6px #ff2a74, 0 0 15px rgba(255, 42, 116, 0.5), 0 0 10px #000;
         }
 
-        /* Animação individual de flutuação dos coraçõezinhos */
-        @keyframes floatHeart {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-4px) scale(1.1); }
-        }
-
-        /* --- INTERFACE DE INTRODUÇÃO (.Para_Ti) --- */
+        /* --- CARD DE ENTRADA --- */
         :root {
             --letter-love: 420px;
-            --letter: rgba(12, 1, 6, 0.92);
+            --letter: rgba(10, 2, 6, 0.94);
         }
 
         .Para_Ti {
             position: absolute;
             width: 90%;
-            max-width: 380px;
+            max-width: 360px;
             height: var(--letter-love);
             background: var(--letter);
-            border-radius: 24px;
+            border-radius: 20px;
             border: 2px solid #ff2a74;
-            box-shadow: 0 0 35px rgba(255, 42, 116, 0.6);
+            box-shadow: 0 0 30px rgba(255, 42, 116, 0.5);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -111,37 +101,22 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
         .Para_Ti h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
+            font-size: 2.3rem;
+            font-weight: 800;
             background: linear-gradient(45deg, #ff758c, #ff7eb3);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
         }
 
         .box-sticker {
-            width: 120px;
-            height: 120px;
-            margin: 15px 0;
+            width: 110px;
+            height: 110px;
         }
 
         .sticker-svg {
@@ -152,9 +127,8 @@
 
         .poem-box {
             font-size: 0.95rem;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #ffe2ee;
-            margin: 15px 0;
         }
 
         .btn-action {
@@ -162,7 +136,7 @@
             border: none;
             color: white;
             padding: 12px 45px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
             letter-spacing: 2px;
             border-radius: 50px;
@@ -184,19 +158,18 @@
 
         #drag-helper {
             position: absolute;
-            bottom: 40px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.8rem;
-            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
             text-transform: uppercase;
             z-index: 3;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1s;
             text-align: center;
-            text-shadow: 0 0 8px #000;
         }
     </style>
 </head>
@@ -204,10 +177,10 @@
 
     <canvas id="galaxy-canvas"></canvas>
     <div id="labels-container"></div>
-    <div id="drag-helper">Arraste com o dedo para girar o coração 💖</div>
+    <div id="drag-helper">Gire a galáxia com o dedo para revelar tudo ✨</div>
 
     <div class="Para_Ti" id="main-card">
-        <div class="screen active" id="scr-intro">
+        <div class="screen" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%;">
             <h1>Galaxy Love</h1>
             <div class="box-sticker">
                 <svg viewBox="0 0 100 100" class="sticker-svg">
@@ -215,16 +188,15 @@
                     <path d="M65,50 C61,37 73,37 73,50 C73,37 85,37 81,50 C78,62 65,70 65,70 C65,70 52,62 49,50 C46,37 58,37 58,50" fill="#ff7eb3"/>
                 </svg>
             </div>
-            <p class="poem-box">Nossas galáxias colidiram. Eu admiro sua força, sua beleza e a maneira como você ilumina meu mundo.</p>
-            <button class="btn-action" onclick="startInteraction()">VER ADMIRAÇÕES</button>
+            <p class="poem-box">Nossas galáxias colidiram. Eu admiro sua força, sua beleza e a maneira como você ilumina meu mundo. Obrigado por ser você.</p>
+            <button class="btn-action" onclick="startInteraction()">INICIAR</button>
         </div>
     </div>
 
     <script>
-        // --- CONTROLE DE INTERFACE ---
+        let interactionActivated = false;
         const mainCard = document.getElementById('main-card');
         const dragHelper = document.getElementById('drag-helper');
-        let interactionActivated = false;
 
         function startInteraction() {
             mainCard.classList.add('card-hidden');
@@ -232,7 +204,7 @@
             interactionActivated = true;
         }
 
-        // --- MOTOR GRÁFICO 3D (THREE.JS) ---
+        // --- AMBIENTE THREE.JS ---
         const canvas = document.getElementById('galaxy-canvas');
         const labelsContainer = document.getElementById('labels-container');
 
@@ -244,37 +216,33 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Grupo principal que armazena a estrutura central e os nós orbitais para girarem juntos
         const mainUniverseGroup = new THREE.Group();
         scene.add(mainUniverseGroup);
 
-        // --- GERANDO O GRANDE CORAÇÃO DE POEIRA CÓSMICA BRILHANTE ---
-        const totalDustParticles = 4000;
+        // --- CORAÇÃO CENTRAL (MENOR E REFINADO) ---
+        const totalDustParticles = 3000;
         const dustGeometry = new THREE.BufferGeometry();
         const dustPositions = new Float32Array(totalDustParticles * 3);
         const dustColors = new Float32Array(totalDustParticles * 3);
 
         const corePhases = [];
         const coreScales = [];
+        const pinkShades = [new THREE.Color('#ff0055'), new THREE.Color('#ff2a74'), new THREE.Color('#ff7eb3'), new THREE.Color('#ffffff')];
 
-        const pinkShades = [
-            new THREE.Color('#ff0055'),
-            new THREE.Color('#ff2a74'),
-            new THREE.Color('#ff7eb3'),
-            new THREE.Color('#ffffff')
-        ];
+        // Reduzi o fator multiplicador para encolher o coração central (deixando-o mais delicado)
+        const heartSizeFactor = 0.65; 
 
         for(let i=0; i < totalDustParticles; i++) {
             const angle = Math.random() * Math.PI * 2;
             corePhases.push(angle);
             
-            const spreadFactor = 0.3 + Math.random() * 1.1;
+            const spreadFactor = (0.2 + Math.random() * 1.0) * heartSizeFactor;
             coreScales.push(spreadFactor);
 
             const t = angle;
             const x = 16 * Math.pow(Math.sin(t), 3) * spreadFactor;
             const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * spreadFactor;
-            const z = (Math.random() - 0.5) * 5;
+            const z = (Math.random() - 0.5) * 4;
 
             dustPositions[i*3] = x;
             dustPositions[i*3+1] = y;
@@ -290,28 +258,28 @@
         dustGeometry.setAttribute('color', new THREE.BufferAttribute(dustColors, 3));
 
         const dustMaterial = new THREE.PointsMaterial({
-            size: 0.35,
+            size: 0.3,
             vertexColors: true,
             transparent: true,
-            opacity: 0.75,
+            opacity: 0.8,
             blending: THREE.AdditiveBlending
         });
 
         const coreHeartPoints = new THREE.Points(dustGeometry, dustMaterial);
         mainUniverseGroup.add(coreHeartPoints);
 
-
-        // --- LISTA DE ADMIRAÇÕES (MINI CORAÇÃO + TEXTO DO INSTAGRAM/TIKTOK) ---
-        const admiraçoes = [
-            "Linda", "Inteligente", "Doce", "Corajosa", "Determinada", 
-            "Criativa", "Empática", "Forte", "Radiante", "Apaixonante", 
-            "Encantadora", "Inspiradora", "Única", "Perfeita"
+        // --- LABELS: EXATAMENTE 50 ADMIRAÇÕES EM ÓRBITA ---
+        const admiracoes = [
+            "Linda", "Inteligente", "Doce", "Corajosa", "Determinada", "Criativa", "Empática", "Forte", "Radiante", "Apaixonante",
+            "Encantadora", "Inspiradora", "Única", "Perfeita", "Maravilhosa", "Cheirosa", "Carinhosa", "Amiga", "Parceira", "Leal",
+            "Engraçada", "Autêntica", "Iluminada", "Preciosa", "Meiga", "Fascinante", "Esplêndida", "Incrível", "Adorável", "Brilhante",
+            "Guerreira", "Generosa", "Elegante", "Magnífica", "Sábia", "Sonhadora", "Poesia viva", "Meu abrigo", "Meu norte", "Fiel",
+            "Gentil", "Ouro puro", "Abençoada", "Insubstituível", "Madura", "Graciosa", "Fascinante", "Sensível", "Rara", "Minha paz"
         ];
 
         const nodesData = [];
 
-        admiraçoes.forEach((txt, idx) => {
-            // Criação da estrutura de nós no HTML
+        admiracoes.forEach((txt, idx) => {
             const nodeContainer = document.createElement('div');
             nodeContainer.className = 'admiration-node';
 
@@ -327,30 +295,27 @@
             nodeContainer.appendChild(textEl);
             labelsContainer.appendChild(nodeContainer);
 
-            // Criação do ponto de referência 3D acoplado ao Universo
             const dummy3D = new THREE.Object3D();
             
-            // Posicionamento esférico/orbital ao redor do coração central
-            const theta = (idx / admiraçoes.length) * Math.PI * 2;
-            const orbitRadius = 15 + Math.random() * 6; // Raio externo ao coração principal
+            // Posicionamento esférico/orbital distribuído para cobrir todo o espaço 3D em camadas
+            const phi = Math.acos(-1 + (2 * idx) / admiracoes.length);
+            const theta = Math.sqrt(admiracoes.length * Math.PI) * phi;
+            const orbitRadius = 11 + Math.random() * 9; // Distância perfeita ao redor do coração menor
 
-            dummy3D.position.x = Math.cos(theta) * orbitRadius;
-            dummy3D.position.y = Math.sin(theta) * orbitRadius;
-            dummy3D.position.z = (Math.random() - 0.5) * 8;
-
+            dummy3D.position.setFromSphericalCoords(orbitRadius, phi, theta);
             mainUniverseGroup.add(dummy3D);
 
             nodesData.push({
                 domElement: nodeContainer,
                 threeObject: dummy3D,
-                angle: theta,
+                phi: phi,
+                theta: theta,
                 radius: orbitRadius,
-                speed: 0.2 + (idx % 3) * 0.1
+                speed: 0.15 + (idx % 4) * 0.05
             });
         });
 
-
-        // --- SISTEMA INTERATIVO DE ARRASTAR COM O DEDO / MOUSE ---
+        // --- SISTEMA DE TOQUE E ROTAÇÃO ---
         let dragging = false;
         let prevPosition = { x: 0, y: 0 };
 
@@ -364,7 +329,6 @@
             const dx = x - prevPosition.x;
             const dy = y - prevPosition.y;
 
-            // Transfere o movimento do arrasto diretamente para os eixos de rotação 3D
             mainUniverseGroup.rotation.y += dx * 0.007;
             mainUniverseGroup.rotation.x += dy * 0.007;
 
@@ -373,18 +337,15 @@
 
         const onPointerEnd = () => { dragging = false; };
 
-        // Desktop
         window.addEventListener('mousedown', (e) => onPointerStart(e.clientX, e.clientY));
         window.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
         window.addEventListener('mouseup', onPointerEnd);
 
-        // Mobile (Toque)
         window.addEventListener('touchstart', (e) => { if(e.touches.length===1) onPointerStart(e.touches[0].clientX, e.touches[0].clientY); });
         window.addEventListener('touchmove', (e) => { if(e.touches.length===1) onPointerMove(e.touches[0].clientX, e.touches[0].clientY); });
         window.addEventListener('touchend', onPointerEnd);
 
-
-        // --- LOOP DE ANIMAÇÃO REALTIME ---
+        // --- LOOP DE RENDERIZAÇÃO REALTIME ---
         const clock = new THREE.Clock();
         const projectionVector = new THREE.Vector3();
 
@@ -392,12 +353,12 @@
             requestAnimationFrame(animate);
             const delta = clock.getElapsedTime();
 
-            // Pulsação sutil e contínua do coração central de poeira cósmica
+            // Pulsação sutil do coração de poeira cósmica
             const posAttr = coreHeartPoints.geometry.attributes.position;
             for(let i=0; i<totalDustParticles; i++) {
-                corePhases[i] += 0.002;
+                corePhases[i] += 0.001;
                 const t = corePhases[i];
-                const factor = coreScales[i] * (1.0 + 0.05 * Math.sin(delta * 2.5 + i));
+                const factor = coreScales[i] * (1.0 + 0.04 * Math.sin(delta * 2.0 + i));
                 
                 const x = 16 * Math.pow(Math.sin(t), 3) * factor;
                 const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * factor;
@@ -407,21 +368,21 @@
             }
             posAttr.needsUpdate = true;
 
-            // Mantém uma rotação inercial lenta se o usuário soltar o dedo
+            // Rotação autônoma quando o usuário não estiver interagindo
             if (!dragging) {
-                mainUniverseGroup.rotation.y += 0.002;
+                mainUniverseGroup.rotation.y += 0.0015;
+                mainUniverseGroup.rotation.x += 0.0005;
             }
 
-            // PROJEÇÃO DAS ADMIRAÇÕES E MINI CORAÇÕES EM COORDENADAS DA TELA
+            // Projeta e atualiza os 50 elementos de texto na tela
             const wHalf = window.innerWidth / 2;
             const hHalf = window.innerHeight / 2;
 
-            nodesData.forEach(node => {
-                // Movimento orbital contínuo ao redor do contorno do coração
-                node.threeObject.position.x = Math.cos(node.angle + (delta * node.speed)) * node.radius;
-                node.threeObject.position.y = Math.sin(node.angle + (delta * node.speed)) * node.radius;
+            nodesData.forEach((node, idx) => {
+                // Pequena órbita própria contínua
+                node.theta += 0.002 * node.speed;
+                node.threeObject.position.setFromSphericalCoords(node.radius, node.phi, node.theta);
 
-                // Coleta a posição global calculada após o arrasto do dedo
                 node.threeObject.getWorldPosition(projectionVector);
                 projectionVector.project(camera);
 
@@ -436,13 +397,13 @@
                 node.domElement.style.left = `${pxX}px`;
                 node.domElement.style.top = `${pxY}px`;
 
-                // Escalonamento de tamanho baseado na distância da profundidade 3D (Z)
+                // Efeito de tamanho por profundidade (Z)
                 const perspectiveScale = (1 - projectionVector.z) * 0.9;
-                node.domElement.style.transform = `translate(-50%, -50%) scale(${Math.max(0.35, perspectiveScale)})`;
+                node.domElement.style.transform = `translate(-50%, -50%) scale(${Math.max(0.4, perspectiveScale)})`;
 
-                // Só exibe os textos quando o usuário clica em iniciar
                 if (interactionActivated) {
-                    node.domElement.style.opacity = "0.9";
+                    // Oclusão simples: esconde textos que vão para muito atrás do plano central
+                    node.domElement.style.opacity = projectionVector.z > 0.65 ? "0.15" : "0.95";
                 } else {
                     node.domElement.style.opacity = "0";
                 }
