@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minha Galáxia</title>
+    <title>Minha Galáxia Favorita</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        /* ==========================================================================
-           RESET E VARIÁVEIS GLOBAIS
-           ========================================================================== */
         :root {
             --bg-color: #010004;
             --primary-glow: #ff2a74;
             --secondary-glow: #ff7eb3;
             --text-color: #ffffff;
             --card-bg: rgba(8, 1, 4, 0.85);
-            --transition-slow: 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-fast: 0.4s ease;
+            --transition-slow: 1s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: 0.3s ease;
         }
 
         * {
@@ -27,9 +24,6 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-touch-callout: none;
         }
 
         body, html {
@@ -41,9 +35,6 @@
             position: relative;
         }
 
-        /* ==========================================================================
-           CANVAS E CONTAINERS DE RENDERIZAÇÃO
-           ========================================================================== */
         #webgl-canvas {
             position: absolute;
             top: 0;
@@ -58,7 +49,6 @@
             cursor: grabbing;
         }
 
-        /* Container que hospeda os textos projetados da matriz 3D para o plano 2D */
         #overlay-labels {
             position: absolute;
             top: 0;
@@ -70,38 +60,24 @@
             overflow: hidden;
         }
 
-        /* ==========================================================================
-           ESTILIZAÇÃO DOS TEXTOS DE ADMIRAÇÃO
-           ========================================================================== */
+        /* REMOVIDO: 'transition: opacity' 
+           Isso causava o conflito com o JS. Agora o JavaScript controla a opacidade em tempo real.
+        */
         .admiration-label {
             position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: translate(-50%, -50%);
-            will-change: transform, opacity;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .admiration-text {
             color: var(--text-color);
             font-weight: 800;
             font-size: 0.75rem;
             letter-spacing: 2px;
             text-transform: uppercase;
             white-space: nowrap;
-            /* Múltiplas camadas de sombra para recriar o efeito Bloom/Neon */
             text-shadow: 
-                0 0 5px var(--primary-glow), 
-                0 0 10px var(--primary-glow), 
-                0 0 20px var(--secondary-glow), 
-                0 0 30px #000000;
+                0 0 6px var(--primary-glow), 
+                0 0 15px var(--primary-glow), 
+                0 0 25px #000000;
+            will-change: transform, left, top, opacity;
         }
 
-        /* ==========================================================================
-           INTERFACE DE INTRODUÇÃO (LIMPA E DIRETA)
-           ========================================================================== */
         #intro-container {
             position: absolute;
             width: 100%;
@@ -121,9 +97,7 @@
             background: var(--card-bg);
             border-radius: 24px;
             border: 1px solid rgba(255, 42, 116, 0.3);
-            box-shadow: 
-                0 0 40px rgba(255, 42, 116, 0.4),
-                inset 0 0 20px rgba(255, 42, 116, 0.1);
+            box-shadow: 0 0 40px rgba(255, 42, 116, 0.4);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             display: flex;
@@ -147,7 +121,6 @@
             background: linear-gradient(135deg, #ffffff 0%, var(--secondary-glow) 50%, var(--primary-glow) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
         .btn-enter {
@@ -166,33 +139,12 @@
             box-shadow: 0 0 15px rgba(255, 42, 116, 0.2);
         }
 
-        .btn-enter::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--primary-glow);
-            z-index: -1;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform var(--transition-fast);
-        }
-
         .btn-enter:hover {
             box-shadow: 0 0 30px var(--primary-glow);
             transform: translateY(-2px);
+            background: rgba(255, 42, 116, 0.15);
         }
 
-        .btn-enter:hover::before {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        /* ==========================================================================
-           DICA DE INTERAÇÃO FLUTUANTE
-           ========================================================================== */
         #interaction-hint {
             position: absolute;
             bottom: 40px;
@@ -206,20 +158,6 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 2s ease;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        /* ==========================================================================
-           ANIMAÇÕES CSS ADICIONAIS
-           ========================================================================== */
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 40px rgba(255, 42, 116, 0.4); }
-            50% { box-shadow: 0 0 60px rgba(255, 42, 116, 0.7); }
-            100% { box-shadow: 0 0 40px rgba(255, 42, 116, 0.4); }
-        }
-
-        .glass-card:not(.hide) {
-            animation: pulseGlow 4s infinite alternate;
         }
     </style>
 </head>
@@ -227,7 +165,7 @@
 
     <canvas id="webgl-canvas"></canvas>
     <div id="overlay-labels"></div>
-    <div id="interaction-hint">Toque e arraste para explorar</div>
+    <div id="interaction-hint">Toque e arraste para explorar a galáxia</div>
 
     <div id="intro-container">
         <div class="glass-card" id="main-card">
@@ -237,16 +175,10 @@
     </div>
 
     <script>
-        /* ==========================================================================
-           CONFIGURAÇÕES GLOBAIS E DADOS (Mais de 100 palavras de admiração)
-           ========================================================================== */
         const CONFIG = {
-            totalMiniHearts: 3500, // Quantidade de corações pequenos que formam o coração gigante
-            heartMacroScale: 1.0,  // Escala geral da galáxia
-            colors: [
-                '#ff0055', '#ff1493', '#ff2a74', '#ff7eb3', '#ffffff', '#ffb6c1', '#db7093', '#ff69b4'
-            ],
-            // As 100 palavras de admiração que você pediu, dispostas no espaço 3D
+            totalMiniHearts: 3500,
+            heartMacroScale: 1.0,
+            colors: ['#ff0055', '#ff1493', '#ff2a74', '#ff7eb3', '#ffffff', '#ffb6c1', '#db7093', '#ff69b4'],
             admirations: [
                 "Linda", "Perfeita", "Maravilhosa", "Inteligente", "Corajosa", 
                 "Doce", "Gentil", "Única", "Radiante", "Forte",
@@ -271,55 +203,21 @@
             ]
         };
 
-        /* ==========================================================================
-           MÓDULO DE MATEMÁTICA E UTILITÁRIOS
-           ========================================================================== */
         const MathUtils = {
-            /**
-             * Retorna um número aleatório entre min e max
-             */
-            randomRange: function(min, max) {
-                return Math.random() * (max - min) + min;
-            },
-            
-            /**
-             * Função matemática clássica para gerar o contorno de um coração 3D.
-             * Utiliza coordenadas polares convertidas para cartesianas.
-             * @param {number} t - Ângulo em radianos
-             * @param {number} scale - Fator de escala
-             * @returns {THREE.Vector3} Coordenada 3D
-             */
-            getHeartCoordinate: function(t, scale) {
-                // A equação paramétrica do coração
+            randomRange: (min, max) => Math.random() * (max - min) + min,
+            getHeartCoordinate: (t, scale) => {
                 const x = 16 * Math.pow(Math.sin(t), 3);
                 const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-                const z = (Math.random() - 0.5) * 6; // Adiciona espessura tridimensional
-                
+                const z = (Math.random() - 0.5) * 6;
                 return new THREE.Vector3(x * scale, y * scale, z * scale);
             },
-
-            /**
-             * Interpolação linear suave (Lerp)
-             */
-            lerp: function(start, end, amt) {
-                return (1 - amt) * start + amt * end;
-            }
+            lerp: (start, end, amt) => (1 - amt) * start + amt * end
         };
 
-        /* ==========================================================================
-           CLASSE: GERADOR DE GEOMETRIA (O Mini Coração)
-           ========================================================================== */
         class GeometryFactory {
-            /**
-             * Cria a geometria de um coração minúsculo usando THREE.Shape.
-             * Cada partícula da galáxia será um desses.
-             * @returns {THREE.ShapeGeometry}
-             */
             static createMiniHeartGeometry() {
                 const shape = new THREE.Shape();
-                // Construção vetorial perfeita de um coração simétrico
                 const x = 0, y = 0;
-                
                 shape.moveTo(x + 2.5, y + 2.5);
                 shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2.0, y, x, y);
                 shape.bezierCurveTo(x - 3.0, y, x - 3.0, y + 3.5, x - 3.0, y + 3.5);
@@ -329,155 +227,107 @@
                 shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
 
                 const geometry = new THREE.ShapeGeometry(shape);
-                
-                // Centraliza a geometria na origem para rotação perfeita
                 geometry.computeBoundingBox();
                 const centerOffset = new THREE.Vector3();
                 geometry.boundingBox.getCenter(centerOffset).multiplyScalar(-1);
                 geometry.translate(centerOffset.x, centerOffset.y, centerOffset.z);
-                
-                // Escala para ficar minúsculo (tamanho de partícula)
                 geometry.scale(0.04, 0.04, 0.04);
-                // Rotaciona 180 graus porque o path do bezier desenha invertido no eixo Y
                 geometry.rotateZ(Math.PI);
 
                 return geometry;
             }
         }
 
-        /* ==========================================================================
-           CLASSE: NÚCLEO DA GALÁXIA (O Coração Gigante feito de Corações)
-           ========================================================================== */
         class GalaxyCore {
-            constructor(scene) {
+            constructor(scene, parentGroup) {
                 this.scene = scene;
+                this.parentGroup = parentGroup;
                 this.mesh = null;
-                this.dummy = new THREE.Object3D(); // Objeto auxiliar para calcular matrizes
-                
-                // Arrays para armazenar dados de animação de cada mini-coração
+                this.dummy = new THREE.Object3D();
                 this.phases = new Float32Array(CONFIG.totalMiniHearts);
                 this.speeds = new Float32Array(CONFIG.totalMiniHearts);
                 this.scales = new Float32Array(CONFIG.totalMiniHearts);
-                this.basePositions = []; // Armazena a posição ideal matemática
-                this.rotations = []; // Rotações individuais
+                this.basePositions = [];
+                this.rotations = [];
                 
                 this.init();
             }
 
             init() {
-                // 1. Instancia a geometria do mini coração
                 const geometry = GeometryFactory.createMiniHeartGeometry();
-                
-                // 2. Cria o material básico (suporta cor por instância)
                 const material = new THREE.MeshBasicMaterial({
                     color: 0xffffff,
                     side: THREE.DoubleSide,
                     transparent: true,
                     opacity: 0.85,
-                    blending: THREE.AdditiveBlending // Efeito de luz/brilho
+                    blending: THREE.AdditiveBlending
                 });
 
-                // 3. Cria a InstancedMesh para altíssima performance
                 this.mesh = new THREE.InstancedMesh(geometry, material, CONFIG.totalMiniHearts);
                 this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-                // Variáveis auxiliares para distribuição geométrica
                 const colorObj = new THREE.Color();
                 
-                // 4. Constrói o posicionamento matemático de cada fragmento
                 for (let i = 0; i < CONFIG.totalMiniHearts; i++) {
-                    // Distribuição angular aleatória
                     const angle = Math.random() * Math.PI * 2;
                     this.phases[i] = angle;
-                    
-                    // Velocidade de pulsação individual
                     this.speeds[i] = MathUtils.randomRange(0.2, 1.5);
-                    
-                    // Fator de dispersão (distância do centro do traço do coração)
-                    // Concentra mais partículas no centro da linha
                     const spread = MathUtils.randomRange(0.2, 1.3) * CONFIG.heartMacroScale;
                     this.scales[i] = spread;
 
-                    // Calcula a coordenada exata
                     const pos = MathUtils.getHeartCoordinate(angle, spread);
                     this.basePositions.push({ x: pos.x, y: pos.y, z: pos.z, spread: spread });
 
-                    // Define rotação individual aleatória para cada mini coração
                     const rotX = Math.random() * Math.PI;
                     const rotY = Math.random() * Math.PI;
                     const rotZ = Math.random() * Math.PI;
                     this.rotations.push({ x: rotX, y: rotY, z: rotZ });
 
-                    // Configura a matriz inicial
                     this.dummy.position.copy(pos);
                     this.dummy.rotation.set(rotX, rotY, rotZ);
                     this.dummy.updateMatrix();
                     this.mesh.setMatrixAt(i, this.dummy.matrix);
 
-                    // Sorteia uma cor da paleta e aplica à instância
                     const hexColor = CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
                     colorObj.set(hexColor);
                     this.mesh.setColorAt(i, colorObj);
                 }
 
-                // Atualiza dados na GPU
-                this.mesh.instanceMatrix.needsUpdate = true;
-                if(this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
-
-                this.scene.add(this.mesh);
+                // Adiciona o coração de instâncias diretamente ao grupo que gira
+                this.parentGroup.add(this.mesh);
             }
 
-            /**
-             * Atualiza a física de cada coraçãozinho a cada frame
-             * @param {number} time - Tempo decorrido
-             */
             update(time) {
                 if (!this.mesh) return;
 
                 for (let i = 0; i < CONFIG.totalMiniHearts; i++) {
-                    // Avança a fase para pulsação
                     this.phases[i] += 0.002 * this.speeds[i];
                     const t = this.phases[i];
-                    
-                    // Calcula uma pulsação dinâmica baseada no tempo e no índice
                     const dynamicScale = this.scales[i] * (1.0 + 0.06 * Math.sin(time * 2.5 + i));
 
-                    // Recalcula a posição na equação do coração
                     const x = 16 * Math.pow(Math.sin(t), 3) * dynamicScale;
                     const y = (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * dynamicScale;
-                    // Mantém o eixo Z com uma leve flutuação
                     const z = this.basePositions[i].z + Math.sin(time + i) * 0.5;
 
-                    // Rotaciona o próprio mini-coração no seu próprio eixo
                     this.rotations[i].x += 0.01;
                     this.rotations[i].y += 0.015;
 
-                    // Aplica as transformações ao objeto dummy
                     this.dummy.position.set(x, y, z);
                     this.dummy.rotation.set(this.rotations[i].x, this.rotations[i].y, this.rotations[i].z);
                     this.dummy.updateMatrix();
-
-                    // Grava na matriz da Instância
                     this.mesh.setMatrixAt(i, this.dummy.matrix);
                 }
-
-                // Avisa ao Three.js que a matriz de instâncias mudou e precisa ser re-renderizada
                 this.mesh.instanceMatrix.needsUpdate = true;
             }
         }
 
-        /* ==========================================================================
-           CLASSE: GERENCIADOR DE LABELS (Palavras Flutuantes em 3D)
-           ========================================================================== */
         class LabelManager {
-            constructor(scene, camera, containerElement) {
-                this.scene = scene;
+            constructor(camera, containerElement, universeGroup) {
                 this.camera = camera;
                 this.container = containerElement;
-                this.labels = []; // Armazena dados dos elementos HTML
-                this.group = new THREE.Group(); // Grupo 3D para as posições
-                this.scene.add(this.group);
-                this.isActive = false; // Só mostra as labels após a introdução
+                this.universeGroup = universeGroup; // Agora os textos residem na matriz do universo
+                this.labels = [];
+                this.isActive = false;
                 
                 this.init();
             }
@@ -486,140 +336,113 @@
                 const words = CONFIG.admirations;
                 
                 words.forEach((word, index) => {
-                    // 1. Criar Elemento HTML do Texto
                     const div = document.createElement('div');
                     div.className = 'admiration-label';
-                    
-                    const span = document.createElement('span');
-                    span.className = 'admiration-text';
-                    span.innerText = word;
-                    
-                    div.appendChild(span);
+                    // Deixa inicialmente invisível via JS
+                    div.style.opacity = '0';
+                    div.innerText = word;
                     this.container.appendChild(div);
 
-                    // 2. Criar um âncora invisível no ambiente 3D
                     const anchor3D = new THREE.Object3D();
                     
-                    // Distribuição esférica utilizando a espiral de Fibonacci para garantir 
-                    // que as 100 palavras cubram toda a galáxia uniformemente e não fiquem amontoadas
                     const phi = Math.acos(-1 + (2 * index) / words.length);
                     const theta = Math.sqrt(words.length * Math.PI) * phi;
                     
-                    // O raio é variável para dar profundidade (umas perto, outras longe)
-                    const radius = MathUtils.randomRange(15, 22);
+                    // Raio ligeiramente maior para envolver o coração inteiro
+                    const radius = MathUtils.randomRange(18, 26);
 
                     anchor3D.position.setFromSphericalCoords(radius, phi, theta);
-                    this.group.add(anchor3D);
+                    
+                    // Adiciona a âncora invisível DIRETAMENTE ao grupo que gira
+                    this.universeGroup.add(anchor3D);
 
-                    // 3. Armazenar referência cruzada (DOM <-> WebGL)
                     this.labels.push({
                         element: div,
                         object3D: anchor3D,
                         baseRadius: radius,
                         phi: phi,
                         theta: theta,
-                        orbitSpeed: MathUtils.randomRange(0.05, 0.15) * (Math.random() > 0.5 ? 1 : -1)
+                        orbitSpeed: MathUtils.randomRange(0.1, 0.4) * (Math.random() > 0.5 ? 1 : -1)
                     });
                 });
             }
 
-            /**
-             * Libera a visibilidade das palavras (chamado ao clicar em ENTRAR)
-             */
             activate() {
                 this.isActive = true;
             }
 
-            /**
-             * Sincroniza a posição 3D do WebGL com as coordenadas 2D da tela CSS
-             */
-            update(time, parentRotation) {
-                // Dimensões atuais da tela para projeção
+            update(time) {
                 const halfWidth = window.innerWidth / 2;
                 const halfHeight = window.innerHeight / 2;
-                
-                // Vetor temporário para cálculo matemático
                 const projVector = new THREE.Vector3();
 
-                // Aplica a rotação do grupo pai (Galáxia) ao grupo de labels
-                this.group.rotation.copy(parentRotation);
-
                 this.labels.forEach(label => {
-                    // Movimento orbital contínuo individual da palavra
+                    // Rotação autônoma sutil da palavra
                     label.theta += 0.001 * label.orbitSpeed;
                     label.object3D.position.setFromSphericalCoords(label.baseRadius, label.phi, label.theta);
 
-                    // Pega a posição global absoluta do âncora 3D
+                    // Pega a posição global (já considerando a rotação arrastada pelo dedo)
                     label.object3D.getWorldPosition(projVector);
                     
-                    // Projeta a coordenada 3D no plano 2D da Câmera
+                    // Salva a profundidade tridimensional real antes de projetar para a tela
+                    const profundidadeZ = projVector.z;
+
+                    // Projeta pro 2D
                     projVector.project(this.camera);
 
-                    // Lógica de Oclusão e Visibilidade
-                    // Se Z > 1, significa que o objeto está atrás da câmera.
                     if (projVector.z > 1 || !this.isActive) {
-                        label.element.style.opacity = 0;
+                        label.element.style.opacity = "0";
                         return;
                     }
 
-                    // Converte a projeção normalizada (-1 a 1) para pixels reais da tela CSS
                     const screenX = (projVector.x * halfWidth) + halfWidth;
                     const screenY = -(projVector.y * halfHeight) + halfHeight;
 
-                    // Posiciona o DOM Element
                     label.element.style.left = `${screenX}px`;
                     label.element.style.top = `${screenY}px`;
 
-                    // Lógica de Profundidade (Scale e Opacity) baseada na distância Z
-                    // Objetos mais ao fundo ficam menores e levemente transparentes
-                    const perspectiveScale = Math.max(0.3, (1 - projVector.z) * 0.9);
-                    label.element.style.transform = `translate(-50%, -50%) scale(${perspectiveScale})`;
-                    
-                    // Desvanece textos que estão rodando para a parte de trás da galáxia
-                    if (projVector.z > 0.8) {
-                        label.element.style.opacity = Math.max(0, 1 - ((projVector.z - 0.8) * 5));
+                    // Lógica de Oclusão Tridimensional
+                    // Se profundidadeZ > 0, o texto está NA FRENTE do coração
+                    if (profundidadeZ > 0) {
+                        label.element.style.opacity = "0.95";
+                        label.element.style.zIndex = 10;
+                        // Fica maior à medida que aproxima da câmera
+                        label.element.style.transform = `translate(-50%, -50%) scale(${1 + (profundidadeZ / 35)})`;
                     } else {
-                        label.element.style.opacity = 1;
+                        // Se profundidadeZ < 0, o texto está ATRÁS do coração
+                        label.element.style.opacity = "0.15"; // Fica escuro e opaco
+                        label.element.style.zIndex = 1;
+                        // Fica menor à medida que afunda
+                        label.element.style.transform = `translate(-50%, -50%) scale(${1 - (Math.abs(profundidadeZ) / 35)})`;
                     }
                 });
             }
         }
 
-        /* ==========================================================================
-           CLASSE: GERENCIADOR DE INTERAÇÃO (Mouse e Touch com Inércia)
-           ========================================================================== */
         class InteractionManager {
             constructor(targetGroup) {
                 this.target = targetGroup;
-                
                 this.isDragging = false;
                 this.previousMousePosition = { x: 0, y: 0 };
-                
-                // Velocidade atual de rotação
-                this.velocity = { x: 0.001, y: 0.0015 }; // Rotação autônoma inicial
-                
-                // Configurações de física
-                this.friction = 0.95; // Fricção (quanto menor, mais rápido para)
-                this.sensitivity = 0.005; // Sensibilidade do arrasto
+                this.velocity = { x: 0.001, y: 0.0015 };
+                this.friction = 0.95;
+                this.sensitivity = 0.005;
 
                 this.bindEvents();
             }
 
             bindEvents() {
-                // Eventos de Mouse
                 window.addEventListener('mousedown', (e) => this.onPointerDown(e.clientX, e.clientY));
                 window.addEventListener('mousemove', (e) => this.onPointerMove(e.clientX, e.clientY));
                 window.addEventListener('mouseup', () => this.onPointerUp());
                 window.addEventListener('mouseleave', () => this.onPointerUp());
 
-                // Eventos de Toque (Mobile)
                 window.addEventListener('touchstart', (e) => {
                     if(e.touches.length === 1) this.onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
                 }, { passive: false });
                 
                 window.addEventListener('touchmove', (e) => {
                     if(e.touches.length === 1) {
-                        // Previne scroll da tela
                         e.preventDefault();
                         this.onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
                     }
@@ -631,17 +454,14 @@
             onPointerDown(x, y) {
                 this.isDragging = true;
                 this.previousMousePosition = { x, y };
-                // Para a inércia ao tocar
                 this.velocity = { x: 0, y: 0 };
             }
 
             onPointerMove(x, y) {
                 if (!this.isDragging) return;
-
                 const deltaX = x - this.previousMousePosition.x;
                 const deltaY = y - this.previousMousePosition.y;
 
-                // Armazena a velocidade baseada no movimento do dedo
                 this.velocity.x = deltaY * this.sensitivity;
                 this.velocity.y = deltaX * this.sensitivity;
 
@@ -652,158 +472,108 @@
                 this.isDragging = false;
             }
 
-            /**
-             * Atualiza a física de rotação no frame de animação
-             */
             update() {
-                // Aplica a velocidade à rotação do grupo alvo
                 this.target.rotation.x += this.velocity.x;
                 this.target.rotation.y += this.velocity.y;
 
-                // Aplica fricção (reduz a velocidade progressivamente)
                 if (!this.isDragging) {
                     this.velocity.x *= this.friction;
                     this.velocity.y *= this.friction;
 
-                    // Se a velocidade cair muito, mantém uma rotação mínima constante
-                    // para a galáxia nunca parar completamente de girar
                     if (Math.abs(this.velocity.x) < 0.0005) this.velocity.x = MathUtils.lerp(this.velocity.x, 0.0005, 0.05);
                     if (Math.abs(this.velocity.y) < 0.001) this.velocity.y = MathUtils.lerp(this.velocity.y, 0.0015, 0.05);
                 }
             }
         }
 
-        /* ==========================================================================
-           SISTEMA PRINCIPAL DA APLICAÇÃO (Main App)
-           ========================================================================== */
         const App = {
             scene: null,
             camera: null,
             renderer: null,
             clock: null,
-            
-            universeGroup: null, // Grupo que segura tudo que gira
-            galaxyCore: null,    // O coração gigante feito de instâncias
-            labelManager: null,  // Gerenciador das 100 palavras
-            interaction: null,   // Gerenciador de física de toque
-            
+            universeGroup: null,
+            galaxyCore: null,
+            labelManager: null,
+            interaction: null,
             isStarted: false,
 
             init: function() {
-                // 1. Setup Básico do Three.js
                 this.scene = new THREE.Scene();
-                // Oculta o fundo original, deixa transparente para o CSS gerenciar
                 this.scene.background = null; 
 
-                // 2. Configuração da Câmera
                 this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-                // Distância calculada para enquadrar perfeitamente a galáxia
                 this.camera.position.z = 45; 
 
-                // 3. Setup do Renderizador WebGL
                 const canvas = document.getElementById('webgl-canvas');
                 this.renderer = new THREE.WebGLRenderer({ 
                     canvas: canvas, 
                     antialias: true,
-                    alpha: true // Fundo transparente
+                    alpha: true
                 });
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-                // 4. Criação do Grupo Matriz Principal
-                // Tudo será adicionado a este grupo para girar em uníssono
+                // Este grupo segura o Coração E as Palavras. Ao girar ele, tudo gira de forma idêntica.
                 this.universeGroup = new THREE.Group();
                 this.scene.add(this.universeGroup);
 
-                // 5. Inicialização dos Módulos
                 this.clock = new THREE.Clock();
                 
-                // Gera os milhares de corações
-                this.galaxyCore = new GalaxyCore(this.universeGroup);
+                this.galaxyCore = new GalaxyCore(this.scene, this.universeGroup);
                 
-                // Gera os textos em HTML e vincula à câmera
                 const labelContainer = document.getElementById('overlay-labels');
-                this.labelManager = new LabelManager(this.scene, this.camera, labelContainer);
+                this.labelManager = new LabelManager(this.camera, labelContainer, this.universeGroup);
                 
-                // Aplica o sistema de física de toque no grupo
                 this.interaction = new InteractionManager(this.universeGroup);
 
-                // 6. Tratamento de Responsividade
                 window.addEventListener('resize', this.onWindowResize.bind(this), false);
 
-                // 7. Inicia o loop de renderização contínuo
                 this.animate();
             },
 
-            /**
-             * Disparado pelo botão HTML "ENTRAR"
-             */
             start: function() {
                 if(this.isStarted) return;
                 this.isStarted = true;
 
-                // Esconde a interface de introdução
                 const intro = document.getElementById('intro-container');
                 const card = document.getElementById('main-card');
                 
                 card.classList.add('hide');
+                
+                // Exibe as palavras IMEDIATAMENTE após clicar
+                this.labelManager.activate();
+
                 setTimeout(() => {
                     intro.style.opacity = "0";
                     intro.style.visibility = "hidden";
                     
-                    // Exibe a dica interativa de girar a galáxia
                     const hint = document.getElementById('interaction-hint');
                     hint.style.opacity = "1";
                     setTimeout(() => hint.style.opacity = "0", 4000);
-
-                    // Ativa a visibilidade das 100 palavras de admiração
-                    this.labelManager.activate();
-
-                }, 800); // Aguarda a animação CSS terminar
+                }, 800); 
             },
 
-            /**
-             * Ajusta as matrizes e dimensões se o usuário girar o celular ou redimensionar a aba
-             */
             onWindowResize: function() {
                 this.camera.aspect = window.innerWidth / window.innerHeight;
                 this.camera.updateProjectionMatrix();
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
             },
 
-            /**
-             * Loop de Renderização (Executado a 60 FPS)
-             * Responsável por atualizar física, matemática, matrizes instanciadas e CSS2D
-             */
             animate: function() {
-                // Solicita o próximo frame nativamente ao navegador
                 requestAnimationFrame(this.animate.bind(this));
-
-                // Pega o tempo delta decorrido
                 const elapsedTime = this.clock.getElapsedTime();
 
-                // 1. Atualiza a física de inércia e rotação do Universo
                 this.interaction.update();
-
-                // 2. Atualiza a matriz matemática dos milhares de mini corações
                 this.galaxyCore.update(elapsedTime);
+                this.labelManager.update(elapsedTime);
 
-                // 3. Atualiza as coordenadas dos elementos HTML (Textos) baseadas na Câmera
-                // Passa a rotação do universo para que o grupo interno do LabelManager acompanhe
-                this.labelManager.update(elapsedTime, this.universeGroup.rotation);
-
-                // 4. Pinta o frame final no canvas
                 this.renderer.render(this.scene, this.camera);
             }
         };
 
-        // ==========================================================================
-        // INICIALIZAÇÃO DA APLICAÇÃO AO CARREGAR A PÁGINA
-        // ==========================================================================
         window.onload = () => {
             App.init();
         };
-
     </script>
 </body>
 </html>
