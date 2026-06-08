@@ -137,7 +137,7 @@
         }
 
         .title-glow {
-            font-size: 1.8rem; /* Ajustado para caber o texto maior */
+            font-size: 1.8rem;
             line-height: 1.3;
             font-weight: 900;
             margin-bottom: 30px;
@@ -198,6 +198,7 @@
     <div id="overlay-labels"></div>
     <div id="interaction-hint">Toque, arraste e clique nas palavras</div>
 
+    <!-- Tela Inicial -->
     <div id="intro-container">
         <div class="glass-card" id="main-card">
             <h1 class="title-glow">Motivos e detalhes que me fez e me faz ser apaixonado por você</h1>
@@ -205,6 +206,7 @@
         </div>
     </div>
 
+    <!-- Modal de Detalhes da Palavra -->
     <div id="modal-container">
         <div class="glass-card">
             <h1 class="title-glow" id="modal-title" style="font-size: 2.2rem; margin-bottom: 15px;">Palavra</h1>
@@ -214,14 +216,13 @@
     </div>
 
     <script>
-        // LISTA DE PALAVRAS E SEUS TEXTOS (Você pode adicionar ou editar à vontade)
         const CONFIG = {
             totalMiniHearts: 3500,
             heartMacroScale: 1.0,
             colors: ['#ff0055', '#ff1493', '#ff2a74', '#ff7eb3', '#ffffff', '#ffb6c1', '#db7093', '#ff69b4'],
             admirations: [
                 { word: "Linda", desc: "Você é a garota mais linda que eu já vi. Sua beleza me encanta todos os dias." },
-                { word: "Perfeita", desc: "Em cada detalhe e em cada imperfeição, para mim você é absolutamente perfeita." },
+                { word: "Perfeita", desc: "Você é a definição exata de perfeição. Para mim, absolutamente tudo em você é impecável e eu não mudaria um único detalhe." },
                 { word: "Inteligente", desc: "Amo a forma como você pensa. Nossas conversas são as minhas favoritas." },
                 { word: "Corajosa", desc: "Admiro a sua força e a maneira como você enfrenta a vida de cabeça erguida." },
                 { word: "Doce", desc: "Seu jeito carinhoso e doce tem o poder de acalmar qualquer tempestade em mim." },
@@ -246,7 +247,22 @@
                 { word: "Amorosa", desc: "O jeito que você ama faz com que eu me sinta a pessoa mais sortuda do mundo." },
                 { word: "Mágica", desc: "Existe uma magia na nossa conexão que eu não sei explicar, só sei sentir." },
                 { word: "Charmosa", desc: "Cada gesto seu, até os mais simples, tem um charme que me deixa hipnotizado." },
-                { word: "Detalhes", desc: "Amo a sua voz, o seu cheiro, o jeito que você me olha... Amo todos os seus detalhes." }
+                { word: "Detalhes", desc: "Amo a sua voz, o seu cheiro, o jeito que você me olha... Amo todos os seus detalhes." },
+                { word: "Serena", desc: "A paz que você transmite acalma o meu coração nos dias mais caóticos." },
+                { word: "Fascinante", desc: "Tudo o que você diz e faz tem o poder de me deixar completamente fascinado por você." },
+                { word: "Deusa", desc: "Você é uma verdadeira deusa que desceu à Terra só para fazer da minha vida um paraíso." },
+                { word: "Bela", desc: "Sua beleza não é só exterior, ela vem da sua alma e transborda no seu sorriso." },
+                { word: "Poderosa", desc: "Amo a sua força e o jeito como você conquista o mundo apenas com a sua presença." },
+                { word: "Intensa", desc: "Amo a forma como você sente, como você vive e como você se entrega a tudo que ama." },
+                { word: "Leal", desc: "A sua lealdade e o seu cuidado me dão a maior segurança e conforto que já senti." },
+                { word: "Magnífica", desc: "Simplesmente não há adjetivos suficientes para descrever o quão grandiosa você é." },
+                { word: "Amiga", desc: "Além de ser o amor da minha vida, você é a minha melhor amiga e confidente." },
+                { word: "Anjo", desc: "Às vezes eu acho que você realmente é um anjo que veio para me salvar e iluminar meu caminho." },
+                { word: "Criativa", desc: "A sua mente trabalha de um jeito lindo, sempre me surpreendendo com ideias incríveis." },
+                { word: "Elegante", desc: "Até nos momentos mais casuais e simples, você tem uma elegância que é só sua." },
+                { word: "Deslumbrante", desc: "É impossível não parar e admirar o quão deslumbrante você fica, mesmo sem tentar." },
+                { word: "Maravilhosa", desc: "Você é uma verdadeira maravilha, com certeza a melhor parte de todos os meus dias." },
+                { word: "Incomparável", desc: "Eu poderia rodar o universo inteiro e nunca encontraria alguém como você." }
             ]
         };
 
