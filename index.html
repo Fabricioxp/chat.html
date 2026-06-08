@@ -83,7 +83,7 @@
             text-shadow: 0 0 10px #fff, 0 0 20px var(--primary-glow);
         }
 
-        /* Estilos Ultra Otimizados - Corações Bem Menores */
+        /* Estilos dos Corações com Letras (Ultra Delicados) */
         .maria-heart-container {
             position: absolute;
             width: 25px;
@@ -96,11 +96,10 @@
             z-index: 3;
         }
 
-        /* Coração reduzido para tamanho super pequeno e delicado */
         .maria-heart-shape {
             position: absolute;
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             background-color: #ff0055;
             transform: rotate(-45deg);
             box-shadow: 0 0 6px #ff2a74, 0 0 12px #ff0055;
@@ -111,20 +110,19 @@
         .maria-heart-shape::after {
             content: "";
             position: absolute;
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             background-color: #ff0055;
             border-radius: 50%;
         }
 
-        .maria-heart-shape::before { top: -8px; left: 0; }
-        .maria-heart-shape::after { left: 8px; top: 0; }
+        .maria-heart-shape::before { top: -7px; left: 0; }
+        .maria-heart-shape::after { left: 7px; top: 0; }
 
-        /* Estilo da Letra adaptado ao tamanho micro */
         .maria-letter {
             position: relative;
             color: #ffffff;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 900;
             z-index: 4;
             text-shadow: 0 0 3px #000;
@@ -137,7 +135,6 @@
             100% { transform: rotate(-45deg) scale(1.05); }
         }
 
-        /* Envoltórios de Interface */
         #intro-container, #modal-container {
             position: absolute;
             width: 100%;
@@ -278,7 +275,7 @@
                 { word: "Inteligente", desc: "Amo a forma como você pensa. Nossas conversas são as minhas favoritas." },
                 { word: "Corajosa", desc: "Admiro a sua força e a maneira como você enfrenta a vida de cabeça erguida." },
                 { word: "Doce", desc: "Seu jeito carinhoso e doce tem o poder de acalmar qualquer tempestade em mim." },
-                { word: "Gentil", desc: "O modo como você treats as pessoas ao seu redor mostra o quão gigante é o seu coração." },
+                { word: "Gentil", desc: "O modo como você trata as pessoas ao seu redor mostra o quão gigante é o seu coração." },
                 { word: "Única", desc: "Não existe ninguém nesse universo inteiro que se compare a você." },
                 { word: "Radiante", desc: "Seu sorriso tem uma luz própria que ilumina os meus dias mais escuros." },
                 { word: "Forte", desc: "Sua resiliência me inspira a ser alguém melhor a cada dia." },
@@ -441,7 +438,6 @@
                 this.container = containerElement;
                 this.universeGroup = universeGroup;
                 this.hearts = [];
-                // Frase atualizada conforme solicitado
                 this.name = "EU AMO VOCÊ MARIA"; 
                 this.cycleDuration = 24; 
                 
@@ -461,7 +457,6 @@
                     const heartShape = document.createElement('div');
                     heartShape.className = 'maria-heart-shape';
                     
-                    // Ocultar visualmente o container do coração caso seja um espaço em branco
                     if (char === " ") {
                         heartShape.style.display = "none";
                     }
@@ -477,18 +472,19 @@
                     const anchor3D = new THREE.Object3D();
                     this.universeGroup.add(anchor3D);
 
-                    // Ajustado o multiplicador de espaçamento para as letras ficarem perfeitamente compactadas juntas
+                    // Organização em ARCO para evitar que fiquem uma em cima da outra
                     const offsetIndex = i - (totalLetters - 1) / 2;
-                    const targetX = offsetIndex * 0.72; 
-                    const targetY = -0.5; 
-                    const targetZ = 1.0;
+                    const targetX = offsetIndex * 0.76; 
+                    // Cria uma curvatura sutil para baixo nas extremidades
+                    const targetY = -0.3 - (Math.pow(offsetIndex, 2) * 0.03); 
+                    const targetZ = 0.5; 
 
                     this.hearts.push({
                         element: div,
                         object3D: anchor3D,
                         randomSeed: Math.random() * 150,
-                        flightRadius: MathUtils.randomRange(15, 23),
-                        phi: MathUtils.randomRange(0.3, Math.PI - 0.3),
+                        flightRadius: MathUtils.randomRange(18, 26),
+                        phi: MathUtils.randomRange(0.2, Math.PI - 0.2),
                         theta: MathUtils.randomRange(0, Math.PI * 2),
                         speed: MathUtils.randomRange(0.2, 0.4),
                         targetPos: new THREE.Vector3(targetX, targetY, targetZ)
@@ -508,20 +504,19 @@
                     let currentTarget = new THREE.Vector3();
 
                     if (!isGathered) {
-                        // Voo livre suave
+                        // Modo dispersão: As letras recuam profundamente para trás da galáxia (-Z)
                         heart.theta += 0.001 * heart.speed;
                         heart.phi += Math.sin(time * 0.12 + heart.randomSeed) * 0.0003;
                         
                         currentTarget.setFromSphericalCoords(heart.flightRadius, heart.phi, heart.theta);
-                        currentTarget.x += Math.sin(time * 0.5 + heart.randomSeed) * 2.0;
-                        currentTarget.y += Math.cos(time * 0.4 + heart.randomSeed) * 2.0;
+                        currentTarget.z = -15; // Joga as letras suavemente para o fundo
                     } else {
-                        // Alinhamento centralizado perfeito
+                        // Modo Coração: Elas voam de volta do fundo LITERALMENTE para dentro do miolo central
                         currentTarget.copy(heart.targetPos);
                     }
 
-                    // Força reduzida para 0.012 para criar um deslize ultra anestesiado e romântico
-                    heart.object3D.position.lerp(currentTarget, 0.012);
+                    // Força super anestesiada (0.013) para criar uma flutuação espacial extremamente mágica
+                    heart.object3D.position.lerp(currentTarget, 0.013);
 
                     heart.object3D.getWorldPosition(projVector);
                     const depthZ = projVector.z;
@@ -538,11 +533,15 @@
                     heart.element.style.left = `${screenX}px`;
                     heart.element.style.top = `${screenY}px`;
 
-                    heart.element.style.opacity = "1";
+                    // Efeito de opacidade com base na profundidade Z (esconde se estiver muito atrás)
+                    if(depthZ < -5) {
+                        heart.element.style.opacity = Math.max(0, 1 + (depthZ + 5)/10);
+                    } else {
+                        heart.element.style.opacity = "1";
+                    }
+
                     const scaleFactor = depthZ > 0 ? (1 + (depthZ / 35)) : (1 - (Math.abs(depthZ) / 35));
-                    
-                    // Escala base adaptada para mini corações
-                    heart.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.3, scaleFactor * 0.75)})`;
+                    heart.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.15, scaleFactor * 0.7)})`;
                 });
             }
         }
@@ -578,7 +577,7 @@
                     const phi = Math.acos(-1 + (2 * index) / items.length);
                     const theta = Math.sqrt(items.length * Math.PI) * phi;
                     
-                    const radius = MathUtils.randomRange(18, 26);
+                    const radius = MathUtils.randomRange(20, 28);
 
                     anchor3D.position.setFromSphericalCoords(radius, phi, theta);
                     
