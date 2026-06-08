@@ -56,7 +56,7 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none; /* Permite interagir com o canvas atrás */
+            pointer-events: none;
             overflow: hidden;
         }
 
@@ -68,8 +68,8 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             white-space: nowrap;
-            cursor: pointer; /* Cursor de clique */
-            pointer-events: auto; /* Torna a palavra clicável */
+            cursor: pointer;
+            pointer-events: auto;
             text-shadow: 
                 0 0 6px var(--primary-glow), 
                 0 0 15px var(--primary-glow), 
@@ -81,6 +81,57 @@
         .admiration-label:hover {
             color: var(--secondary-glow);
             text-shadow: 0 0 10px #fff, 0 0 20px var(--primary-glow);
+        }
+
+        /* Estilos dos Corações com Letras da Maria */
+        .maria-heart-container {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            pointer-events: none;
+            will-change: transform, opacity;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .maria-heart-shape {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #ff0055;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 15px #ff2a74, 0 0 30px #ff0055;
+            animation: pulse-heart 1.2s infinite alternate ease-in-out;
+        }
+
+        .maria-heart-shape::before,
+        .maria-heart-shape::after {
+            content: "";
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #ff0055;
+            border-radius: 50%;
+        }
+
+        .maria-heart-shape::before { top: -20px; left: 0; }
+        .maria-heart-shape::after { left: 20px; top: 0; }
+
+        .maria-letter {
+            position: relative;
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 900;
+            z-index: 4;
+            text-shadow: 0 0 8px #000;
+            font-family: 'Georgia', serif;
+        }
+
+        @keyframes pulse-heart {
+            0% { transform: rotate(-45deg) scale(0.9); }
+            100% { transform: rotate(-45deg) scale(1.1); }
         }
 
         /* Containeres de Interface (Intro e Modal) */
@@ -198,7 +249,6 @@
     <div id="overlay-labels"></div>
     <div id="interaction-hint">Toque, arraste e clique nas palavras</div>
 
-    <!-- Tela Inicial -->
     <div id="intro-container">
         <div class="glass-card" id="main-card">
             <h1 class="title-glow">Motivos e detalhes que me fez e me faz ser apaixonado por você</h1>
@@ -206,7 +256,6 @@
         </div>
     </div>
 
-    <!-- Modal de Detalhes da Palavra -->
     <div id="modal-container">
         <div class="glass-card">
             <h1 class="title-glow" id="modal-title" style="font-size: 2.2rem; margin-bottom: 15px;">Palavra</h1>
@@ -383,6 +432,112 @@
             }
         }
 
+        // Classe criada para gerenciar os 5 corações especiais do nome MARIA
+        class MariaHearts {
+            constructor(camera, containerElement, universeGroup) {
+                this.camera = camera;
+                this.container = containerElement;
+                this.universeGroup = universeGroup;
+                this.hearts = [];
+                this.name = "MARIA";
+                this.cycleDuration = 20; // 10s voando + 10s reunidos
+                
+                this.init();
+            }
+
+            init() {
+                for (let i = 0; i < this.name.length; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'maria-heart-container';
+                    div.style.opacity = '0';
+                    
+                    const heartShape = document.createElement('div');
+                    heartShape.className = 'maria-heart-shape';
+                    
+                    const letterSpan = document.createElement('div');
+                    letterSpan.className = 'maria-letter';
+                    letterSpan.innerText = this.name[i];
+
+                    div.appendChild(heartShape);
+                    div.appendChild(letterSpan);
+                    this.container.appendChild(div);
+
+                    const anchor3D = new THREE.Object3D();
+                    this.universeGroup.add(anchor3D);
+
+                    // Posição para quando estiverem reunidos no centro do coração gigante (Alinhados horizontalmente)
+                    const targetX = (i - 2) * 3.2; 
+                    const targetY = -1.0; 
+                    const targetZ = 2.0;
+
+                    this.hearts.push({
+                        element: div,
+                        object3D: anchor3D,
+                        // Configurações para o vôo aleatório
+                        randomSeed: Math.random() * 100,
+                        flightRadius: MathUtils.randomRange(14, 22),
+                        phi: MathUtils.randomRange(0.2, Math.PI - 0.2),
+                        theta: MathUtils.randomRange(0, Math.PI * 2),
+                        speed: MathUtils.randomRange(0.3, 0.6),
+                        // Destinos centrais fixos
+                        targetPos: new THREE.Vector3(targetX, targetY, targetZ)
+                    });
+                }
+            }
+
+            update(time) {
+                const halfWidth = window.innerWidth / 2;
+                const halfHeight = window.innerHeight / 2;
+                const projVector = new THREE.Vector3();
+
+                // Lógica do ciclo: Retorna o resto da divisão por 20 segundos
+                const cycleTime = time % this.cycleDuration;
+                const isGathered = cycleTime >= 10; // Primeiros 10s dispersos, próximos 10s juntos
+
+                this.hearts.forEach((heart, index) => {
+                    let currentTarget = new THREE.Vector3();
+
+                    if (!isGathered) {
+                        // Modo Voando: Atualiza órbita esférica suave entre as outras palavras
+                        heart.theta += 0.002 * heart.speed;
+                        heart.phi += Math.sin(time * 0.2 + heart.randomSeed) * 0.0005;
+                        
+                        currentTarget.setFromSphericalCoords(heart.flightRadius, heart.phi, heart.theta);
+                        // Adiciona flutuação orgânica extra (ruído leve)
+                        currentTarget.x += Math.sin(time + heart.randomSeed) * 2;
+                        currentTarget.y += Math.cos(time * 0.8 + heart.randomSeed) * 2;
+                    } else {
+                        // Modo Reunido: Destino fixo no meio do coração macro
+                        currentTarget.copy(heart.targetPos);
+                    }
+
+                    // Interpolação suave (Lerp) para transição macia entre os dois estados
+                    heart.object3D.position.lerp(currentTarget, 0.06);
+
+                    // Converte coordenadas 3D para tela 2D
+                    heart.object3D.getWorldPosition(projVector);
+                    const depthZ = projVector.z;
+                    projVector.project(this.camera);
+
+                    if (projVector.z > 1 || !App.labelManager.isActive) {
+                        heart.element.style.opacity = "0";
+                        return;
+                    }
+
+                    const screenX = (projVector.x * halfWidth) + halfWidth;
+                    const screenY = -(projVector.y * halfHeight) + halfHeight;
+
+                    heart.element.style.left = `${screenX}px`;
+                    heart.element.style.top = `${screenY}px`;
+
+                    // Ajusta escala por profundidade de câmera e opacidade
+                    heart.element.style.opacity = "1";
+                    const scaleFactor = depthZ > 0 ? (1 + (depthZ / 35)) : (1 - (Math.abs(depthZ) / 35));
+                    heart.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.4, scaleFactor * 0.95)})`;
+                });
+            }
+        }
+
         class LabelManager {
             constructor(camera, containerElement, universeGroup) {
                 this.camera = camera;
@@ -403,7 +558,6 @@
                     div.style.opacity = '0';
                     div.innerText = item.word;
                     
-                    // Evento de clique na palavra
                     div.onclick = () => {
                         App.openModal(item.word, item.desc);
                     };
@@ -549,6 +703,7 @@
             universeGroup: null,
             galaxyCore: null,
             labelManager: null,
+            mariaHearts: null, // Nova referência adicionada
             interaction: null,
             isStarted: false,
 
@@ -577,6 +732,9 @@
                 
                 const labelContainer = document.getElementById('overlay-labels');
                 this.labelManager = new LabelManager(this.camera, labelContainer, this.universeGroup);
+                
+                // Instanciando os corações da Maria
+                this.mariaHearts = new MariaHearts(this.camera, labelContainer, this.universeGroup);
                 
                 this.interaction = new InteractionManager(this.universeGroup);
 
@@ -628,6 +786,7 @@
                 this.interaction.update();
                 this.galaxyCore.update(elapsedTime);
                 this.labelManager.update(elapsedTime);
+                this.mariaHearts.update(elapsedTime); // Atualização frame-a-frame adicionada
 
                 this.renderer.render(this.scene, this.camera);
             }
