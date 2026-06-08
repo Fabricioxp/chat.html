@@ -83,11 +83,11 @@
             text-shadow: 0 0 10px #fff, 0 0 20px var(--primary-glow);
         }
 
-        /* Estilos dos Corações com Letras da Maria */
+        /* Estilos Otimizados dos Corações com Letras da Maria (Menores) */
         .maria-heart-container {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 35px;
+            height: 35px;
             pointer-events: none;
             will-change: transform, opacity;
             display: flex;
@@ -98,40 +98,41 @@
 
         .maria-heart-shape {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 26px;
+            height: 26px;
             background-color: #ff0055;
             transform: rotate(-45deg);
-            box-shadow: 0 0 15px #ff2a74, 0 0 30px #ff0055;
-            animation: pulse-heart 1.2s infinite alternate ease-in-out;
+            box-shadow: 0 0 10px #ff2a74, 0 0 20px #ff0055;
+            animation: pulse-heart 1.4s infinite alternate ease-in-out;
         }
 
         .maria-heart-shape::before,
         .maria-heart-shape::after {
             content: "";
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 26px;
+            height: 26px;
             background-color: #ff0055;
             border-radius: 50%;
         }
 
-        .maria-heart-shape::before { top: -20px; left: 0; }
-        .maria-heart-shape::after { left: 20px; top: 0; }
+        .maria-heart-shape::before { top: -13px; left: 0; }
+        .maria-heart-shape::after { left: 13px; top: 0; }
 
         .maria-letter {
             position: relative;
             color: #ffffff;
-            font-size: 1.6rem;
+            font-size: 1.15rem;
             font-weight: 900;
             z-index: 4;
-            text-shadow: 0 0 8px #000;
+            text-shadow: 0 0 5px #000;
             font-family: 'Georgia', serif;
+            bottom: 1px; /* Ajuste fino de alinhamento vertical */
         }
 
         @keyframes pulse-heart {
-            0% { transform: rotate(-45deg) scale(0.9); }
-            100% { transform: rotate(-45deg) scale(1.1); }
+            0% { transform: rotate(-45deg) scale(0.92); }
+            100% { transform: rotate(-45deg) scale(1.08); }
         }
 
         /* Containeres de Interface (Intro e Modal) */
@@ -307,11 +308,11 @@
                 { word: "Magnífica", desc: "Simplesmente não há adjetivos suficientes para descrever o quão grandiosa você é." },
                 { word: "Amiga", desc: "Além de ser o amor da minha vida, você é a minha melhor amiga e confidente." },
                 { word: "Anjo", desc: "Às vezes eu acho que você realmente é um anjo que veio para me salvar e iluminar meu caminho." },
-                { word: "Criativa", desc: "A sua mente trabalha de um jeito lindo, sempre me surpreendendo com ideias incríveis." },
-                { word: "Elegante", desc: "Até nos momentos mais casuais e simples, você tem uma elegância que é só sua." },
-                { word: "Deslumbrante", desc: "É impossível não parar e admirar o quão deslumbrante você fica, mesmo sem tentar." },
-                { word: "Maravilhosa", desc: "Você é uma verdadeira maravilha, com certeza a melhor parte de todos os meus dias." },
-                { word: "Incomparável", desc: "Eu poderia rodar o universo inteiro e nunca encontraria alguém como você." }
+                { word: "Criativa", desc: "Amo a sua mente aberta e cheia de ideias, você me surpreende positivamente a todo instante." },
+                { word: "Elegante", desc: "Sua postura e elegância natural transformam qualquer momento simples em algo marcante." },
+                { word: "Deslumbrante", desc: "É impossível não perder o fôlego toda vez que olho para você. Você é de tirar o fôlego." },
+                { word: "Maravilhosa", desc: "Você é tudo o que eu sempre sonhei e muito mais. Completamente maravilhosa." },
+                { word: "Incomparável", desc: "Não há métrica, galáxia ou poesia que consiga mensurar a sua raridade." }
             ]
         };
 
@@ -432,7 +433,6 @@
             }
         }
 
-        // Classe criada para gerenciar os 5 corações especiais do nome MARIA
         class MariaHearts {
             constructor(camera, containerElement, universeGroup) {
                 this.camera = camera;
@@ -440,7 +440,7 @@
                 this.universeGroup = universeGroup;
                 this.hearts = [];
                 this.name = "MARIA";
-                this.cycleDuration = 20; // 10s voando + 10s reunidos
+                this.cycleDuration = 24; // 12s voando livremente + 12s reunidos fixos
                 
                 this.init();
             }
@@ -465,21 +465,19 @@
                     const anchor3D = new THREE.Object3D();
                     this.universeGroup.add(anchor3D);
 
-                    // Posição para quando estiverem reunidos no centro do coração gigante (Alinhados horizontalmente)
-                    const targetX = (i - 2) * 3.2; 
-                    const targetY = -1.0; 
-                    const targetZ = 2.0;
+                    // Ajustado espaçamento (de 3.2 para 1.8) para caber certinho no miolo do coração gigante
+                    const targetX = (i - 2) * 1.8; 
+                    const targetY = -0.6; 
+                    const targetZ = 1.5;
 
                     this.hearts.push({
                         element: div,
                         object3D: anchor3D,
-                        // Configurações para o vôo aleatório
-                        randomSeed: Math.random() * 100,
-                        flightRadius: MathUtils.randomRange(14, 22),
-                        phi: MathUtils.randomRange(0.2, Math.PI - 0.2),
+                        randomSeed: Math.random() * 150,
+                        flightRadius: MathUtils.randomRange(15, 23),
+                        phi: MathUtils.randomRange(0.3, Math.PI - 0.3),
                         theta: MathUtils.randomRange(0, Math.PI * 2),
-                        speed: MathUtils.randomRange(0.3, 0.6),
-                        // Destinos centrais fixos
+                        speed: MathUtils.randomRange(0.25, 0.45),
                         targetPos: new THREE.Vector3(targetX, targetY, targetZ)
                     });
                 }
@@ -490,31 +488,28 @@
                 const halfHeight = window.innerHeight / 2;
                 const projVector = new THREE.Vector3();
 
-                // Lógica do ciclo: Retorna o resto da divisão por 20 segundos
                 const cycleTime = time % this.cycleDuration;
-                const isGathered = cycleTime >= 10; // Primeiros 10s dispersos, próximos 10s juntos
+                const isGathered = cycleTime >= 12; // Modificado para 12 segundos cada etapa
 
-                this.hearts.forEach((heart, index) => {
+                this.hearts.forEach((heart) => {
                     let currentTarget = new THREE.Vector3();
 
                     if (!isGathered) {
-                        // Modo Voando: Atualiza órbita esférica suave entre as outras palavras
-                        heart.theta += 0.002 * heart.speed;
-                        heart.phi += Math.sin(time * 0.2 + heart.randomSeed) * 0.0005;
+                        // Modo Vôo Livre entre as palavras
+                        heart.theta += 0.0015 * heart.speed;
+                        heart.phi += Math.sin(time * 0.15 + heart.randomSeed) * 0.0004;
                         
                         currentTarget.setFromSphericalCoords(heart.flightRadius, heart.phi, heart.theta);
-                        // Adiciona flutuação orgânica extra (ruído leve)
-                        currentTarget.x += Math.sin(time + heart.randomSeed) * 2;
-                        currentTarget.y += Math.cos(time * 0.8 + heart.randomSeed) * 2;
+                        currentTarget.x += Math.sin(time * 0.7 + heart.randomSeed) * 2.5;
+                        currentTarget.y += Math.cos(time * 0.5 + heart.randomSeed) * 2.5;
                     } else {
-                        // Modo Reunido: Destino fixo no meio do coração macro
+                        // Modo Centro do coração macro
                         currentTarget.copy(heart.targetPos);
                     }
 
-                    // Interpolação suave (Lerp) para transição macia entre os dois estados
-                    heart.object3D.position.lerp(currentTarget, 0.06);
+                    // Reduzido o peso do Lerp de 0.06 para 0.025 para a aproximação ser muito mais suave e flutuante
+                    heart.object3D.position.lerp(currentTarget, 0.025);
 
-                    // Converte coordenadas 3D para tela 2D
                     heart.object3D.getWorldPosition(projVector);
                     const depthZ = projVector.z;
                     projVector.project(this.camera);
@@ -530,10 +525,9 @@
                     heart.element.style.left = `${screenX}px`;
                     heart.element.style.top = `${screenY}px`;
 
-                    // Ajusta escala por profundidade de câmera e opacidade
                     heart.element.style.opacity = "1";
                     const scaleFactor = depthZ > 0 ? (1 + (depthZ / 35)) : (1 - (Math.abs(depthZ) / 35));
-                    heart.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.4, scaleFactor * 0.95)})`;
+                    heart.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.35, scaleFactor * 0.9)})`;
                 });
             }
         }
@@ -703,7 +697,7 @@
             universeGroup: null,
             galaxyCore: null,
             labelManager: null,
-            mariaHearts: null, // Nova referência adicionada
+            mariaHearts: null,
             interaction: null,
             isStarted: false,
 
@@ -732,8 +726,6 @@
                 
                 const labelContainer = document.getElementById('overlay-labels');
                 this.labelManager = new LabelManager(this.camera, labelContainer, this.universeGroup);
-                
-                // Instanciando os corações da Maria
                 this.mariaHearts = new MariaHearts(this.camera, labelContainer, this.universeGroup);
                 
                 this.interaction = new InteractionManager(this.universeGroup);
@@ -786,7 +778,7 @@
                 this.interaction.update();
                 this.galaxyCore.update(elapsedTime);
                 this.labelManager.update(elapsedTime);
-                this.mariaHearts.update(elapsedTime); // Atualização frame-a-frame adicionada
+                this.mariaHearts.update(elapsedTime);
 
                 this.renderer.render(this.scene, this.camera);
             }
